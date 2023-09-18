@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  dining-service:
+    image: "nestjs-restaurant/dining-service"
+    restart: always
+    ports:
+      - 3001:3000
+    depends_on:
+      - mongo_db_dining
+      - ${MENU_SERVICE}
+      - ${KITCHEN_SERVICE}
+    environment:
+      - MENU_SERVICE_URL_WITH_PORT=${MENU_SERVICE}:3000
+      - KITCHEN_SERVICE_URL_WITH_PORT=${KITCHEN_SERVICE}:3000
+    networks:
+      - nestjs-restaurant-network
+  mongo_db_dining:
+    image: "mongo:4.4.15"
+    restart: always
+    ports:
+      - 27019:27017
+    networks:
+      - nestjs-restaurant-network
+networks:
+  nestjs-restaurant-network:
+    driver: bridge
