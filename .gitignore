@@ -1,0 +1,10 @@
+# Visual Studio Code
+.vscode/*
+.history/
+
+# JetBrains
+.idea/*
+
+# General
+.DS_Store
+
