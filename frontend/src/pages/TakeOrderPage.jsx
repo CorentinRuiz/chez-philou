@@ -1,5 +1,5 @@
 import React from "react";
-import PaperButtonMUI from "../component/templates/PaperButtonMUI";
+import PaperButtonMUI from "../components/templates/PaperButtonMUI";
 import { Grid,Divider } from "@mui/material";
 
 const TakeOrderPage = () => {
