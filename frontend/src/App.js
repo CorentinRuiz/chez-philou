@@ -1,37 +1,53 @@
-import ChooseTablePage from "./pages/ChooseTablePage";
-import {Content, Header} from "antd/es/layout/layout";
-import {Box} from "@mui/material";
-import {Divider, Layout, Typography} from "antd";
+import TakeOrderPage from "./pages/TakeOrderPage";
+import { Content, Header } from "antd/es/layout/layout";
+import { Layout } from "antd";
 import React from "react";
-const {Title} = Typography;
+import ChooseTablePage from "./pages/ChooseTablePage";
+import { Routes, Route } from "react-router-dom";
+import AppBar from "./component/AppBar";
+
 
 function App() {
-  const headerStyle: React.CSSProperties = {
-    textAlign: 'left',
-    color: '#000000',
+  const headerStyle = {
+    textAlign: "left",
+    color: "#000000",
     paddingInline: 20,
-    backgroundColor: '#FFFFFF',
-    position: 'sticky',
+    backgroundColor: "#FFFFFF",
+    position: "sticky",
     top: 0,
     zIndex: 1,
   };
 
-  const contentStyle: React.CSSProperties = {
-    backgroundColor: '#ffffff',
+  const contentStyle = {
+    backgroundColor: "#ffffff",
   };
 
   return (
-      <Layout>
-        <Header style={headerStyle}>
-          <Box sx={{width: '100%'}}>
-            <Title style={{marginTop: 15}} level={3}>Table selection</Title>
-            <Divider style={{margin: 0}}/>
-          </Box>
-        </Header>
-        <Content style={contentStyle}>
-          <ChooseTablePage/>
-        </Content>
-      </Layout>
+    <Layout>
+      <Header style={headerStyle}>
+        <AppBar />
+      </Header>
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            <Content style={contentStyle}>
+              <ChooseTablePage />
+            </Content>
+          }
+        />
+        <Route
+          exact
+          path="/takeOrder/:id"
+          element={
+            <Content style={contentStyle}>
+              <TakeOrderPage />
+            </Content>
+          }
+        />
+      </Routes>
+    </Layout>
   );
 }
 

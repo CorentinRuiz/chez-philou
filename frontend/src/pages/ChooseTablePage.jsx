@@ -1,9 +1,8 @@
-import React from 'react'
 
 const ChooseTablePage = () => {
-  return (
-    <div>ChooseTablePage</div>
-  )
-}
+  return (  
+    <>ChooseTable</>
+  );
+};
 
-export default ChooseTablePage
+export default ChooseTablePage;
