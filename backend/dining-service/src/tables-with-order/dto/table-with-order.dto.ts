@@ -20,6 +20,11 @@ export class TableWithOrderDto {
   taken: boolean;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  blocked: boolean;
+
+  @ApiProperty()
   @IsMongoId()
   @IsOptional()
   tableOrderId: string; // could be null (is null if taken === false)
