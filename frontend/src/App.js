@@ -1,8 +1,7 @@
 import ChooseTablePage from "./pages/ChooseTablePage";
 import {Content, Header} from "antd/es/layout/layout";
-import {Box, Grid} from "@mui/material";
+import {Box} from "@mui/material";
 import {Divider, Layout, Typography} from "antd";
-import TableButton from "./component/chooseTable/TableButton";
 import React from "react";
 const {Title} = Typography;
 
