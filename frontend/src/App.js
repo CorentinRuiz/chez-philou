@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import ChooseTablePage from "./pages/ChooseTablePage";
+import {Content, Header} from "antd/es/layout/layout";
+import {Box, Grid} from "@mui/material";
+import {Divider, Layout, Typography} from "antd";
+import TableButton from "./component/chooseTable/TableButton";
+import React from "react";
+const {Title} = Typography;
 
 function App() {
+  const headerStyle: React.CSSProperties = {
+    textAlign: 'left',
+    color: '#000000',
+    paddingInline: 20,
+    backgroundColor: '#FFFFFF',
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+  };
+
+  const contentStyle: React.CSSProperties = {
+    backgroundColor: '#ffffff',
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Layout>
+        <Header style={headerStyle}>
+          <Box sx={{width: '100%'}}>
+            <Title style={{marginTop: 15}} level={3}>Table selection</Title>
+            <Divider style={{margin: 0}}/>
+          </Box>
+        </Header>
+        <Content style={contentStyle}>
+          <ChooseTablePage/>
+        </Content>
+      </Layout>
   );
 }
 
