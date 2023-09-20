@@ -1,7 +1,10 @@
 
+
 const ChooseTablePage = () => {
-  return (  
-    <>ChooseTable</>
+  return (
+    <>
+     ChooseTable
+    </>
   );
 };
 

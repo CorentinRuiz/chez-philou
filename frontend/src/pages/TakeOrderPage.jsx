@@ -1,6 +1,6 @@
 import React from "react";
 import PaperButtonMUI from "../component/templates/PaperButtonMUI";
-import { Grid } from "@mui/material";
+import { Grid,Divider } from "@mui/material";
 
 const TakeOrderPage = () => {
   const borderRadiusDrinks = {
@@ -75,6 +75,8 @@ const TakeOrderPage = () => {
           ></PaperButtonMUI>
         </Grid>
       </Grid>
+
+      <Divider style={{ margin: 20 }} />
     </div>
   );
 };

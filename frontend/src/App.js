@@ -29,7 +29,6 @@ function App() {
       </Header>
       <Routes>
         <Route
-          exact
           path="/"
           element={
             <Content style={contentStyle}>
@@ -38,8 +37,7 @@ function App() {
           }
         />
         <Route
-          exact
-          path="/takeOrder/:id"
+          path="/takeOrder/:tableId"
           element={
             <Content style={contentStyle}>
               <TakeOrderPage />
