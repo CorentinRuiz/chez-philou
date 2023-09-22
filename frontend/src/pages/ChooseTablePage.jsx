@@ -9,14 +9,14 @@ import {
     TABLE_AVAILABLE,
     TABLE_BLOCKED
 } from "../components/chooseTable/Constants";
-import {FloatButton, InputNumber, message, Modal, Typography} from "antd";
+import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables} from "../api/tables";
 
 const {Title} = Typography;
 
-const ChooseTablePage = (props) => {
+const ChooseTablePage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const [allTables, setAllTables] = useState([]);
 
@@ -73,7 +73,7 @@ const ChooseTablePage = (props) => {
         });
     }
 
-    useEffect(() => {
+    const retrieveTables = () => {
         getAllTables().then((response) => {
             setAllTables(response.data.map((table) => {
                 return {
@@ -82,14 +82,37 @@ const ChooseTablePage = (props) => {
                     state: table.taken ? '' : TABLE_AVAILABLE
                 }
             }))
-        }).catch((error) => {
-            Modal.error({
-                title: 'Communication with the table management service impossible',
-                content: error.message,
-                okText: 'OK'
+            messageApi.destroy();
+            messageApi.success('Tables retrieved');
+        }).catch(() => {
+            messageApi.error('Unable to retrieve information from the table management service').then(() => {
+                messageApi.loading(
+                    'Retrying to retrieve tables in 5 seconds',
+                    5,
+                    () => retrieveTables()
+                )
             });
         });
+    }
+
+    useEffect(() => {
+        retrieveTables();
     }, []);
+
+    const DisplayTableSelection = () => {
+        if (allTables.length === 0) {
+            return <Grid item xs={12} sm={3} key={1}><Alert message="Error"
+                                                            description="Unable to retrieve information from the table management service..."
+                                                            type="error" showIcon/></Grid>
+        } else {
+            return allTables.map((table) => (
+                <Grid item xs={6} sm={3} key={table.number}>
+                    <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
+                                 state={table.state}/>
+                </Grid>
+            ));
+        }
+    }
 
     return (
         <Box sx={{marginInline: "2em"}}>
@@ -97,12 +120,7 @@ const ChooseTablePage = (props) => {
                          icon={<SearchOutlined/>}/>
 
             <Grid container spacing={4} style={{paddingBlock: 30}}>
-                {allTables.map((table) => (
-                    <Grid item xs={6} sm={3} key={table.number}>
-                        <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
-                                     state={table.state}/>
-                    </Grid>
-                ))}
+                <DisplayTableSelection/>
             </Grid>
 
             {/*Pour afficher des messages*/}
