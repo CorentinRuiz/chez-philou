@@ -1,6 +1,6 @@
 import { axiosInstance } from "./api";
 
-const API_BASE_ROUTE = "/tables";
+const API_BASE_ROUTE = "/dining/tables";
 
 export const getAllTables = async () => {
     return await axiosInstance.get(API_BASE_ROUTE);

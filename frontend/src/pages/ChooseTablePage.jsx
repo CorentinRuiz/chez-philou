@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {Box, Grid} from "@mui/material";
 import PropTypes from "prop-types";
 import TableButton from "../components/chooseTable/TableButton";
@@ -12,33 +12,15 @@ import {
 import {FloatButton, InputNumber, message, Modal, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
-import {wait} from "@testing-library/user-event/dist/utils";
+import {getAllTables} from "../api/tables";
 
 const {Title} = Typography;
 
 const ChooseTablePage = (props) => {
     const [messageApi, contextHolder] = message.useMessage();
+    const [allTables, setAllTables] = useState([]);
 
     const navigate = useNavigate();
-
-    const tables = [
-        {tableNumber: 1, state: PREPARATION_IN_PROGRESS},
-        {tableNumber: 2, state: TABLE_AVAILABLE},
-        {tableNumber: 3, state: READY_TO_SERVE},
-        {tableNumber: 4, state: TABLE_AVAILABLE},
-        {tableNumber: 5, state: TABLE_BLOCKED},
-        {tableNumber: 6, state: TABLE_AVAILABLE},
-        {tableNumber: 7, state: TABLE_AVAILABLE},
-        {tableNumber: 8, state: TABLE_AVAILABLE},
-        {tableNumber: 9, state: TABLE_AVAILABLE},
-        {tableNumber: 10, state: TABLE_AVAILABLE},
-        {tableNumber: 11, state: TABLE_AVAILABLE},
-        {tableNumber: 12, state: TABLE_AVAILABLE},
-        {tableNumber: 13, state: TABLE_AVAILABLE},
-        {tableNumber: 14, state: TABLE_AVAILABLE},
-        {tableNumber: 15, state: TABLE_AVAILABLE},
-        {tableNumber: 16, state: TABLE_AVAILABLE},
-    ]
 
     const handleOnClick = (table) => {
         openModalDisplay(table, handleModalResponse);
@@ -47,22 +29,22 @@ const ChooseTablePage = (props) => {
     const handleModalResponse = (table, response) => {
         // Débloquer une table
         if (table.state === TABLE_BLOCKED && response === true) {
-            messageApi.loading(`Unlocking table ${table.tableNumber}...`, 2.5)
-                .then(() => messageApi.success(`Table ${table.tableNumber} unlocked`));
+            messageApi.loading(`Unlocking table ${table.number}...`, 2.5)
+                .then(() => messageApi.success(`Table ${table.number} unlocked`));
             console.log("débloquer");
         }
 
         // Délivrer
         else if (table.state === READY_TO_SERVE && response === true) {
-            messageApi.success(`Table ${table.tableNumber} delivered`);
+            messageApi.success(`Table ${table.number} delivered`);
             console.log("livrer");
         }
 
         // Ouverture nouvelle table
         else if (table.state === TABLE_AVAILABLE) {
-            messageApi.loading(`Opening of table ${table.tableNumber} in progress`, 2)
+            messageApi.loading(`Opening of table ${table.number} in progress`, 2)
                 .then(() => {
-                    navigate(`/takeOrder/${table.tableNumber}`);
+                    navigate(`/takeOrder/${table.number}`);
                 });
             console.log("ouverture avec " + response);
         }
@@ -78,7 +60,7 @@ const ChooseTablePage = (props) => {
                              value={tableNumberSearched}/>
             </div>, okText: 'Access', cancelText: 'Cancel',
             onOk: () => {
-                const tableSearched = tables.find(table => table.tableNumber === tableNumberSearched);
+                const tableSearched = allTables.find(table => table.number === tableNumberSearched);
                 if (tableSearched !== undefined) handleOnClick(tableSearched);
                 else {
                     Modal.error({
@@ -91,15 +73,33 @@ const ChooseTablePage = (props) => {
         });
     }
 
+    useEffect(() => {
+        getAllTables().then((response) => {
+            setAllTables(response.data.map((table) => {
+                return {
+                    id: table._id,
+                    number: table.number,
+                    state: table.taken ? '' : TABLE_AVAILABLE
+                }
+            }))
+        }).catch((error) => {
+            Modal.error({
+                title: 'Communication with the table management service impossible',
+                content: error.message,
+                okText: 'OK'
+            });
+        });
+    }, []);
+
     return (
         <Box sx={{marginInline: "2em"}}>
             <FloatButton shape="square" type="primary" onClick={openQuickSearch} style={{right: 24}}
                          icon={<SearchOutlined/>}/>
 
             <Grid container spacing={4} style={{paddingBlock: 30}}>
-                {tables.map((table) => (
-                    <Grid item xs={6} sm={3} key={table.tableNumber}>
-                        <TableButton onClick={() => handleOnClick(table)} tableNumber={table.tableNumber}
+                {allTables.map((table) => (
+                    <Grid item xs={6} sm={3} key={table.number}>
+                        <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
                                      state={table.state}/>
                     </Grid>
                 ))}

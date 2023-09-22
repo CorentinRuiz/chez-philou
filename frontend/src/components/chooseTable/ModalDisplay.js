@@ -8,7 +8,7 @@ const {Title} = Typography;
 const unlockTableModal = (table, onModalResponse) => {
     Modal.confirm({
         title: "Unlock Table",
-        content: `Do you want to unlock table ${table?.tableNumber}?`,
+        content: `Do you want to unlock table ${table?.number}?`,
         onOk: () => onModalResponse(table, true),
         okText: "Unlock",
         cancelText: "Cancel"
@@ -18,7 +18,7 @@ const unlockTableModal = (table, onModalResponse) => {
 const preparationProgressDisplay = (table, timeRemaining) => {
     return (
         <div>
-            <Title level={4}>Table n°{table.tableNumber}</Title>
+            <Title level={4}>Table n°{table.number}</Title>
             <Steps current={timeRemaining ? 1 : 2} style={{paddingBlock: "10px"}}
                    items={[
                        {
@@ -59,7 +59,7 @@ const openNewTable = (table, onModalResponse) => {
     let numberOfPerson = 1;
 
     Modal.confirm({
-        title: "Opening a table",
+        title: `Opening a table - Table ${table.number}`,
         content: <div>
             <Title level={5}>How many people will sit at this table?</Title>
             <Select
