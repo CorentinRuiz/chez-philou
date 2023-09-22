@@ -13,12 +13,14 @@ import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd"
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables} from "../api/tables";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const {Title} = Typography;
 
 const ChooseTablePage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const [allTables, setAllTables] = useState([]);
+    const [firstLoadInProgress, setFirstLoadInProgress] = useState(true);
 
     const navigate = useNavigate();
 
@@ -92,7 +94,8 @@ const ChooseTablePage = () => {
                     () => retrieveTables()
                 )
             });
-        });
+        })
+            .finally(() => setFirstLoadInProgress(false));
     }
 
     useEffect(() => {
@@ -100,11 +103,15 @@ const ChooseTablePage = () => {
     }, []);
 
     const DisplayTableSelection = () => {
-        if (allTables.length === 0) {
+        if (firstLoadInProgress)
+            return <Grid item xs={12} sm={3} key={1}><Alert message="Loading"
+                                                            description="Loading table data in progress. Please wait..."
+                                                            type="warning" showIcon/></Grid>
+        else if (allTables.length === 0)
             return <Grid item xs={12} sm={3} key={1}><Alert message="Error"
                                                             description="Unable to retrieve information from the table management service..."
                                                             type="error" showIcon/></Grid>
-        } else {
+        else {
             return allTables.map((table) => (
                 <Grid item xs={6} sm={3} key={table.number}>
                     <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
