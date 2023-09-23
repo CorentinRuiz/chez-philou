@@ -16,7 +16,7 @@ const PaperButtonMUI = (props) => {
         borderTopRightRadius: borderradius.tr,
     }));
 
-    return <PaperItemMUI borderradius={borderRadius} backgroundcolor={color} onClick={onClick}>
+    return <PaperItemMUI borderradius={borderRadius} backgroundcolor={color} onClick={ e=> onClick(e)}>
         <div>
             <h1>{title}</h1>
             <p>{description}</p>

@@ -2,6 +2,7 @@ import {Modal, Select, Steps, Typography} from "antd";
 import PropTypes from "prop-types";
 import {PREPARATION_IN_PROGRESS, READY_TO_SERVE, TABLE_AVAILABLE, TABLE_BLOCKED} from "./Constants";
 import {LoadingOutlined} from '@ant-design/icons';
+import TextArea from "antd/es/input/TextArea";
 
 const {Title} = Typography;
 
@@ -75,6 +76,24 @@ const openNewTable = (table, onModalResponse) => {
     });
 }
 
+const displayAddCommentModal = (itemName,onModalResponse) => {
+    let comment = "";
+
+    Modal.confirm({
+        title: `Add a comment`,
+        content: <div>
+            <Title level={5}>Add a comment to item {itemName}</Title>
+            <TextArea
+                defaultValue=""
+                onChange={(newValue) => comment = newValue}
+            />
+        </div>,
+        okText: "Add",
+        cancelText: "Cancel",
+        onOk: () => onModalResponse(itemName,comment)
+    });
+}
+
 const displayUnknownModal = () => {
     Modal.error({
         title: "Unknown error",
@@ -101,6 +120,10 @@ export const openModalDisplay = (table, onModalResponse) => {
                 displayUnknownModal();
         }
     }
+}
+
+export const openAddCommentModal = () =>{
+    displayAddCommentModal();
 }
 
 

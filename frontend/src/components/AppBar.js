@@ -1,7 +1,7 @@
 import React from "react";
 import {useLocation} from "react-router-dom";
-import {Box, Grid, Stack} from "@mui/material";
-import {Divider, Layout, Typography} from "antd";
+import {Box, Grid} from "@mui/material";
+import {Divider, Typography} from "antd";
 
 const {Title} = Typography;
 
