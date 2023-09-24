@@ -3,7 +3,7 @@ import React from "react";
 
 const BottomSheetHeader = ({ nbItems, totalPrice, onSendOrder }) => {
   return (
-    <Box display="flex" justifyContent="space-between" margin="10px">
+    <Box display="flex" justifyContent="space-between" margin="10px" sx={{overflow: "hidden"}}>
       <Box display="flex" flexDirection="column">
         <Typography variant="h5" color="#5F69DD">
           {nbItems} Items

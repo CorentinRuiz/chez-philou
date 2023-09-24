@@ -24,12 +24,29 @@ const TakeOrderPage = () => {
     ]);
   };
 
-  const fakeItems = {
-    name: "Salade César",
-    quantity: 1,
-    price: 5,
-    comment: ""
-  }
+  const fakeItems = [
+    {
+      name: "Salade César",
+      quantity: 1,
+      price: 5,
+      comment: "",
+      color: "#F9D9C9",
+    },
+    {
+      name: "Fish & Chips",
+      quantity: 2,
+      price: 15,
+      comment: "Sans sauce tartare ",
+      color: "#DDD6FC",
+    },
+    {
+      name: "Burger",
+      quantity: 1,
+      price: 15,
+      comment: "",
+      color: "#DDD6FC",
+    },
+  ];
 
   return (
     <div>
@@ -43,7 +60,9 @@ const TakeOrderPage = () => {
       >
         <BottomSheetHeader nbItems={5} totalPrice={45.0} />
         <Divider style={{ margin: 20, background: "#D1E3F4" }} />
-        <OrderItem color="#F9D9C9" items={fakeItems}></OrderItem>
+        {fakeItems.map((fakeItem) => (
+          <OrderItem color={fakeItem.color} item={fakeItem}></OrderItem>
+        ))}
       </BottomSheet>
     </div>
   );
