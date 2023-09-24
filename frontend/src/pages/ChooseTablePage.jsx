@@ -7,13 +7,13 @@ import {
     PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
     TABLE_AVAILABLE,
-    TABLE_BLOCKED
+    TABLE_BLOCKED,
+    TABLE_OPEN
 } from "../components/chooseTable/Constants";
 import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
-import {getAllTables} from "../api/tables";
-import {wait} from "@testing-library/user-event/dist/utils";
+import {getAllTables, updateTable} from "../api/tables";
 
 const {Title} = Typography;
 
@@ -24,6 +24,34 @@ const ChooseTablePage = () => {
 
     const navigate = useNavigate();
 
+    // Prévoit le clic long pour bloquer
+    useEffect(() => {
+        allTables.forEach((table) => {
+            document.getElementById(`table${table.number}`).addEventListener("contextmenu", (event) => {
+                // Elle ne doit pas déjà être bloquée
+                if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
+                else displayModalToLock(table.number);
+
+            });
+        })
+    }, [allTables]);
+
+    const displayModalToLock = (tableNumber) => {
+        Modal.confirm({
+            title: 'Lock table',
+            content: <Title level={5}>Do you want to block table n°{tableNumber}?</Title>,
+            okText: 'Lock', cancelText: 'Cancel',
+            onOk: () => {
+                updateTable(tableNumber, {blocked: true}).then(() => {
+                    messageApi.success(`Table ${tableNumber} locked`);
+                    retrieveTables(false);
+                }).catch(() => {
+                    messageApi.error(`Unable to lock table ${tableNumber}`);
+                });
+            },
+        });
+    }
+
     const handleOnClick = (table) => {
         openModalDisplay(table, handleModalResponse);
     }
@@ -31,9 +59,14 @@ const ChooseTablePage = () => {
     const handleModalResponse = (table, response) => {
         // Débloquer une table
         if (table.state === TABLE_BLOCKED && response === true) {
-            messageApi.loading(`Unlocking table ${table.number}...`, 2.5)
-                .then(() => messageApi.success(`Table ${table.number} unlocked`));
-            console.log("débloquer");
+            updateTable(table.number, {blocked: false})
+                .then(() => {
+                    messageApi.success(`Table ${table.number} unlocked`);
+                    retrieveTables(false);
+                })
+                .catch(() => {
+                    messageApi.error(`Unable to unlock table ${table.number}`);
+                })
         }
 
         // Délivrer
@@ -75,17 +108,16 @@ const ChooseTablePage = () => {
         });
     }
 
-    const retrieveTables = () => {
+    const retrieveTables = (withMessageApi = true) => {
         getAllTables().then((response) => {
             setAllTables(response.data.map((table) => {
                 return {
                     id: table._id,
                     number: table.number,
-                    state: table.taken ? '' : TABLE_AVAILABLE
+                    state: table.blocked ? TABLE_BLOCKED : (table.taken ? TABLE_OPEN : TABLE_AVAILABLE)
                 }
             }))
-            messageApi.destroy();
-            messageApi.success('Tables retrieved');
+            if (withMessageApi) messageApi.success('Tables retrieved');
         }).catch(() => {
             messageApi.error('Unable to retrieve information from the table management service').then(() => {
                 messageApi.loading(
@@ -108,12 +140,12 @@ const ChooseTablePage = () => {
                                                             description="Loading table data in progress. Please wait..."
                                                             type="warning" showIcon/></Grid>
         else if (allTables.length === 0)
-            return <Grid item xs={12} sm={3} key={1}><Alert message="Error"
-                                                            description="Unable to retrieve information from the table management service..."
-                                                            type="error" showIcon/></Grid>
+            return <Grid item xs={12} key={1}><Alert message="Error"
+                                                     description="There is no table, or we are unable to retrieve information from the table management service..."
+                                                     type="error" showIcon/></Grid>
         else {
             return allTables.map((table) => (
-                <Grid item xs={6} sm={3} key={table.number}>
+                <Grid item xs={6} sm={3} key={table.number} id={`table${table.number}`}>
                     <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
                                  state={table.state}/>
                 </Grid>

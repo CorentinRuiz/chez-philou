@@ -36,6 +36,7 @@ export class TableWithOrderDto {
     tableWithOrderDto._id = table._id;
     tableWithOrderDto.number = table.number;
     tableWithOrderDto.taken = table.taken;
+    tableWithOrderDto.blocked = table.blocked;
     tableWithOrderDto.tableOrderId = tableOrder?._id || null;
 
     return tableWithOrderDto;

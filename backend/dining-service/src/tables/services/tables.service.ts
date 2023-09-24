@@ -12,6 +12,7 @@ import { TableNumberNotFoundException } from '../exceptions/table-number-not-fou
 import { TableAlreadyTakenException } from '../exceptions/table-already-taken.exception';
 import { TableAlreadyFreeException } from '../exceptions/table-already-free.exception';
 import { TablesWithOrderService } from '../../tables-with-order/services/tables-with-order.service';
+import {UpdateTableDto} from "../dto/update-table.dto";
 
 @Injectable()
 export class TablesService {
@@ -48,6 +49,18 @@ export class TablesService {
     const newTable: Table = await this.tableModel.create(addTableDto);
 
     return this.tablesWithOrderService.tableToTableWithOrder(newTable);
+  }
+
+  async updateTable(tableNumber: number, updateTableDto: UpdateTableDto): Promise<TableWithOrderDto> {
+    const foundItem = await this.tableModel.findOne({ number: tableNumber }).lean();
+
+    if (foundItem === null) {
+      throw new TableNumberNotFoundException(tableNumber);
+    }
+
+    foundItem.blocked = updateTableDto.blocked;
+
+    return this.tableModel.findByIdAndUpdate(foundItem._id, foundItem, { returnDocument: 'after' });
   }
 
   async takeTable(tableNumber: number): Promise<Table> {

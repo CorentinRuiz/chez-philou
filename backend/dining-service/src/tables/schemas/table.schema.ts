@@ -12,6 +12,10 @@ export class Table {
   _id: string;
 
   @ApiProperty()
+  @Prop({default: false})
+  blocked: boolean;
+
+  @ApiProperty()
   @Prop({ required: true, min: 0 })
   number: number;
 
