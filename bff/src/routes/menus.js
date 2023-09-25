@@ -5,7 +5,7 @@ const {getMenus} = require("../api/menus");
 router.get("/:type", async (req, res) => {
     getMenus().then((response) => {
         if (Array.isArray(response.data)) {
-            const transformedData = transformAndFilterData(response.data, req.params.type);
+            const transformedData = transformAndFilterData(response.data, req.params.type.toUpperCase());
             res.status(200).json(transformedData);
         } else {
             res.status(500).json({ error: 'La réponse du backend n\'est pas au format attendu.' });
