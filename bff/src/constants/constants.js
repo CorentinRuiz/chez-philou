@@ -1,0 +1,11 @@
+const TABLE_AVAILABLE = 0;
+const TABLE_OPEN = 1;
+const PREPARATION_IN_PROGRESS = 2;
+const READY_TO_SERVE = 3;
+const TABLE_BLOCKED = 4;
+
+module.exports = {
+    TABLE_AVAILABLE,
+    TABLE_OPEN,
+    PREPARATION_IN_PROGRESS,
+}
