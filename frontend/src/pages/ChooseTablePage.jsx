@@ -28,10 +28,12 @@ const ChooseTablePage = () => {
     useEffect(() => {
         allTables.forEach((table) => {
             document.getElementById(`table${table.number}`).addEventListener("contextmenu", (event) => {
+                // Désactiver le menu du clic droit
+                event.preventDefault();
+
                 // Elle ne doit pas déjà être bloquée
                 if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
                 else displayModalToLock(table.number);
-
             });
         })
     }, [allTables]);

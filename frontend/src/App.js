@@ -21,9 +21,6 @@ function App() {
         backgroundColor: "#ffffff",
     };
 
-    // Désactivation du clic droit
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
-
     return (
         <Layout>
             <Header style={headerStyle}>
