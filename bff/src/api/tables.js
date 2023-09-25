@@ -6,6 +6,11 @@ const getAllTables = async () => {
     return await axiosInstance.get(API_BASE_ROUTE);
 };
 
+const getTableInformation = async (tableNumber) =>{
+    return await axiosInstance.get(`${API_BASE_ROUTE}/${tableNumber}`);
+};
+
 module.exports = {
-    getAllTables
+    getAllTables,
+    getTableInformation
 }
