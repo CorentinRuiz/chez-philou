@@ -8,11 +8,11 @@ router.get("/:type", async (req, res) => {
             const transformedData = transformAndFilterData(response.data, req.params.type.toUpperCase());
             res.status(200).json(transformedData);
         } else {
-            res.status(500).json({ error: 'La réponse du backend n\'est pas au format attendu.' });
+            res.status(500).json({ error: 'The response from the backend is not in the expected format.' });
         }
     }).catch((reason) => {
-        console.error('Erreur lors de la requête au backend:', reason);
-        res.status(502).json({ error: 'Une erreur s\'est produite lors de la requête au backend.' });
+        console.error('Error while sending a request to backend:', reason);
+        res.status(502).json({ error: 'Error while sending a request to backend.' });
     });
 });
 
@@ -22,7 +22,7 @@ function transformAndFilterData(data, category) {
     return data.filter(item => item.category === category)
         .map(item => ({
         "_id": item._id,
-        "fullName": item.fullName,
+        "shortName": item.shortName,
         "price": item.price,
         "color": getColorForCategory(item.category)
     }));
