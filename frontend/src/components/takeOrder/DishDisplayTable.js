@@ -36,7 +36,7 @@ const DishDisplayTable = ({ menuItems }) => {
   };
 
   return (
-    <Paper elevation={1} sx={{margin: "10px"}}>
+    <Paper elevation={1} sx={{margin: "10px", height: "430px", overflow: "auto"}}>
       <Grid container spacing={0.5} padding={1}>
         {menuItems.map((menuItem, index) => (
           <Grid item xs={6} key={index}>
@@ -53,7 +53,7 @@ const DishDisplayTable = ({ menuItems }) => {
                 marginLeft={1}
                 marginRight={1}
               >
-                <Typography variant="h6">{menuItem.title}</Typography>
+                <Typography variant="h6">{menuItem.shortName}</Typography>
                 <IconButton onClick={openAddCommentModal}>
                   <AddCommentIcon />
                 </IconButton>

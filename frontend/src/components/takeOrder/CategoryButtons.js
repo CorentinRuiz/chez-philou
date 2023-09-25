@@ -1,8 +1,9 @@
 import React from "react";
 import PaperButtonMUI from "../templates/PaperButtonMUI";
-import { Grid } from "@mui/material";
+import { Grid,alpha } from "@mui/material";
 
-const CategoryButtons = ({ functionOnClick }) => {
+const CategoryButtons = ({ functionOnClick, selected, displayGrid }) => {
+
   const borderRadiusDrinks = {
     bl: "15px",
     br: "0px",
@@ -43,7 +44,8 @@ const CategoryButtons = ({ functionOnClick }) => {
           <PaperButtonMUI
             borderRadius={borderRadiusStarter}
             title={"Starter"}
-            color={"#F9D9C9"}
+            color={selected === "Starter" && displayGrid ? alpha("#F9D9C9",1) : alpha("#F9D9C9",0.6) }
+            elevation={selected === "Starter" && displayGrid ? 2 : 0}
             onClick={functionOnClick}
           ></PaperButtonMUI>
         </Grid>
@@ -51,7 +53,8 @@ const CategoryButtons = ({ functionOnClick }) => {
           <PaperButtonMUI
             borderRadius={borderRadiusDish}
             title={"Main dish"}
-            color={"#DDD6FC"}
+            color={selected === "Main dish" && displayGrid ? alpha("#DDD6FC",1) : alpha("#DDD6FC",0.6) }
+            elevation={selected === "Main dish" && displayGrid ? 2 : 0}
             onClick={functionOnClick}
           ></PaperButtonMUI>
         </Grid>
@@ -65,7 +68,8 @@ const CategoryButtons = ({ functionOnClick }) => {
         <Grid item xs={5}>
           <PaperButtonMUI
             title={"Drinks"}
-            color={"#C5FBF0"}
+            color={selected === "Drinks" && displayGrid ? alpha("#C5FBF0",1) : alpha("#C5FBF0",0.6) }
+            elevation={selected === "Drinks" && displayGrid ? 2 : 0}
             borderRadius={borderRadiusDrinks}
             onClick={functionOnClick}
           ></PaperButtonMUI>
@@ -74,7 +78,8 @@ const CategoryButtons = ({ functionOnClick }) => {
           <PaperButtonMUI
             borderRadius={borderRadiusDessert}
             title={"Dessert"}
-            color={"#D1E3F4"}
+            color={selected === "Dessert" && displayGrid ? alpha("#D1E3F4",1) : alpha("#D1E3F4",0.6) }
+            elevation={selected === "Dessert" && displayGrid ? 2 : 0}
             onClick={functionOnClick}
           ></PaperButtonMUI>
         </Grid>

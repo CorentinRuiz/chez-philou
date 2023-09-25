@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import {Paper, styled} from "@mui/material";
 
 const PaperButtonMUI = (props) => {
-    const {color, title, description, onClick, borderRadius} = props;
+    const {color, title, description, onClick, borderRadius,elevation} = props;
 
     const PaperItemMUI = styled(Paper)(({theme, backgroundcolor, borderradius}) => ({
         ...theme.typography.body2,
@@ -16,7 +16,7 @@ const PaperButtonMUI = (props) => {
         borderTopRightRadius: borderradius.tr,
     }));
 
-    return <PaperItemMUI borderradius={borderRadius} backgroundcolor={color} onClick={ e=> onClick(e)}>
+    return <PaperItemMUI elevation={elevation} borderradius={borderRadius} backgroundcolor={color} onClick={ e=> onClick(e)}>
         <div>
             <h1>{title}</h1>
             <p>{description}</p>

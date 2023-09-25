@@ -6,6 +6,7 @@ import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import BottomSheetHeader from "../components/takeOrder/bottomSheet/BottomSheetHeader";
 import OrderItem from "../components/takeOrder/bottomSheet/OrderItem";
+import { getMenus } from "../api/menus";
 
 const TakeOrderPage = () => {
   const [lastButtonClicked, setLastButtonClicked] = useState("");
@@ -17,11 +18,26 @@ const TakeOrderPage = () => {
       lastButtonClicked === e.target.innerText ? !displayGrid : true
     );
     setLastButtonClicked(e.target.innerText);
-    setMenuItems([
-      { title: "Plat 1" },
-      { title: "Plat 2" },
-      { title: "Plat 3" },
-    ]);
+
+    getMenus().then((res) => {
+      const itemsToDisplay = [];
+      console.log(res.data);
+
+      for (const item of res.data) {
+        if (
+          item.category.toLowerCase() ===
+          e.target.innerText.toLowerCase().split(" ")[0]
+        ) {
+          itemsToDisplay.push(item);
+        }
+        if (e.target.innerText.toLowerCase() === "drinks") {
+          if (item.category.toLowerCase() === "beverage") {
+            itemsToDisplay.push(item);
+          }
+        }
+      }
+      setMenuItems(itemsToDisplay);
+    });
   };
 
   const fakeItems = [
@@ -50,7 +66,11 @@ const TakeOrderPage = () => {
 
   return (
     <div>
-      <CategoryButtons functionOnClick={getNewItems} />
+      <CategoryButtons
+        selected={lastButtonClicked}
+        functionOnClick={getNewItems}
+        displayGrid={displayGrid}
+      />
       <Divider style={{ margin: 20 }} />
       {displayGrid ? <DishDisplayTable menuItems={menuItems} /> : ""}
       <BottomSheet
