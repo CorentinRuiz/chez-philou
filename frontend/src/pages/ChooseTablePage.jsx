@@ -33,34 +33,30 @@ const ChooseTablePage = () => {
 
                 // Elle ne doit pas déjà être bloquée
                 if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
-                else displayModalToLock(table.number);
+                else openModalDisplay(table, handleModalResponse, true);
             });
         })
     }, [allTables]);
-
-    const displayModalToLock = (tableNumber) => {
-        Modal.confirm({
-            title: 'Lock table',
-            content: <Title level={5}>Do you want to block table n°{tableNumber}?</Title>,
-            okText: 'Lock', cancelText: 'Cancel',
-            onOk: () => {
-                updateTable(tableNumber, {blocked: true}).then(() => {
-                    messageApi.success(`Table ${tableNumber} locked`);
-                    retrieveTables(false);
-                }).catch(() => {
-                    messageApi.error(`Unable to lock table ${tableNumber}`);
-                });
-            },
-        });
-    }
 
     const handleOnClick = (table) => {
         openModalDisplay(table, handleModalResponse);
     }
 
     const handleModalResponse = (table, response) => {
+        // Bloquer une table
+        if (response === "lock") {
+            updateTable(table.number, {blocked: true})
+                .then(() => {
+                    messageApi.success(`Table ${table.number} locked`);
+                    retrieveTables(false);
+                })
+                .catch(() => {
+                    messageApi.error(`Unable to lock table ${table.number}`);
+                })
+        }
+
         // Débloquer une table
-        if (table.state === TABLE_BLOCKED && response === true) {
+        else if (table.state === TABLE_BLOCKED && response === true) {
             updateTable(table.number, {blocked: false})
                 .then(() => {
                     messageApi.success(`Table ${table.number} unlocked`);

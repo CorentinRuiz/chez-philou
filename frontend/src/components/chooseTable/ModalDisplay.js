@@ -3,6 +3,10 @@ import PropTypes from "prop-types";
 import {PREPARATION_IN_PROGRESS, READY_TO_SERVE, TABLE_AVAILABLE, TABLE_BLOCKED} from "./Constants";
 import {LoadingOutlined} from '@ant-design/icons';
 import TextArea from "antd/es/input/TextArea";
+import {Grid, IconButton} from "@mui/material";
+import LockIcon from '@mui/icons-material/Lock';
+import {updateTable} from "../../api/tables";
+import React from "react";
 
 const {Title} = Typography;
 
@@ -56,11 +60,28 @@ const orderReadyModal = (table, onModalResponse) => {
     })
 }
 
+const lockTableModal = (table, onModalResponse) => {
+    Modal.confirm({
+        title: 'Lock table',
+        content: <Title level={5}>Do you want to block table n°{table.tableNumber}?</Title>,
+        okText: 'Lock', cancelText: 'Cancel',
+        onOk: () => onModalResponse(table, "lock"),
+    });
+}
+
 const openNewTable = (table, onModalResponse) => {
     let numberOfPerson = 1;
 
     Modal.confirm({
-        title: `Opening a table - Table ${table.number}`,
+        title: <div>
+            <Grid container alignItems="center">
+                <Grid item xs={10}>Opening a table - Table {table.number}</Grid>
+                <Grid item xs={2}><IconButton aria-label="lock" style={{padding: 0}} onClick={() => {
+                    Modal.destroyAll();
+                    onModalResponse(table, "lock")
+                }}><LockIcon/></IconButton></Grid>
+            </Grid>
+        </div>,
         content: <div>
             <Title level={5}>How many people will sit at this table?</Title>
             <Select
@@ -76,7 +97,7 @@ const openNewTable = (table, onModalResponse) => {
     });
 }
 
-const displayAddCommentModal = (itemName,onModalResponse) => {
+const displayAddCommentModal = (itemName, onModalResponse) => {
     let comment = "";
 
     Modal.confirm({
@@ -90,7 +111,7 @@ const displayAddCommentModal = (itemName,onModalResponse) => {
         </div>,
         okText: "Add",
         cancelText: "Cancel",
-        onOk: () => onModalResponse(itemName,comment)
+        onOk: () => onModalResponse(itemName, comment)
     });
 }
 
@@ -101,8 +122,12 @@ const displayUnknownModal = () => {
     });
 }
 
-export const openModalDisplay = (table, onModalResponse) => {
+export const openModalDisplay = (table, onModalResponse, lock = false) => {
     if (table) {
+        if(lock) {
+            lockTableModal(table, onModalResponse);
+            return;
+        }
         switch (table.state) {
             case TABLE_AVAILABLE:
                 openNewTable(table, onModalResponse);
@@ -122,7 +147,7 @@ export const openModalDisplay = (table, onModalResponse) => {
     }
 }
 
-export const openAddCommentModal = () =>{
+export const openAddCommentModal = () => {
     displayAddCommentModal();
 }
 
