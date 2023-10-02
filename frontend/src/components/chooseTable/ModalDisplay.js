@@ -5,12 +5,11 @@ import {LoadingOutlined} from '@ant-design/icons';
 import TextArea from "antd/es/input/TextArea";
 import {Grid, IconButton} from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
-import {updateTable} from "../../api/tables";
 import React from "react";
 
 const {Title} = Typography;
 
-const unlockTableModal = (table, onModalResponse) => {
+export const unlockTableModal = (table, onModalResponse) => {
     Modal.confirm({
         title: "Unlock Table",
         content: `Do you want to unlock table ${table?.number}?`,
@@ -43,14 +42,14 @@ const preparationProgressDisplay = (table, timeRemaining) => {
     );
 }
 
-const preparationInProgressModal = (table) => {
+export const preparationInProgressModal = (table) => {
     Modal.info({
         title: "Preparation in progress...",
         content: preparationProgressDisplay(table, 10)
     })
 }
 
-const orderReadyModal = (table, onModalResponse) => {
+export const orderReadyModal = (table, onModalResponse) => {
     Modal.confirm({
         title: "Order ready",
         content: preparationProgressDisplay(table),
@@ -60,7 +59,7 @@ const orderReadyModal = (table, onModalResponse) => {
     })
 }
 
-const lockTableModal = (table, onModalResponse) => {
+export const lockTableModal = (table, onModalResponse) => {
     Modal.confirm({
         title: 'Lock table',
         content: <Title level={5}>Do you want to block table n°{table.tableNumber}?</Title>,
@@ -69,7 +68,7 @@ const lockTableModal = (table, onModalResponse) => {
     });
 }
 
-const openNewTable = (table, onModalResponse) => {
+export const openNewTable = (table, onModalResponse) => {
     let numberOfPerson = 1;
 
     Modal.confirm({
@@ -97,7 +96,7 @@ const openNewTable = (table, onModalResponse) => {
     });
 }
 
-const displayAddCommentModal = (itemName, onModalResponse) => {
+export const displayAddCommentModal = (itemName, onModalResponse) => {
     let comment = "";
 
     Modal.confirm({
@@ -115,46 +114,13 @@ const displayAddCommentModal = (itemName, onModalResponse) => {
     });
 }
 
-const displayUnknownModal = () => {
+export const displayUnknownModal = () => {
     Modal.error({
         title: "Unknown error",
         content: "Unknown error. Sorry..."
     });
 }
 
-export const openModalDisplay = (table, onModalResponse, lock = false) => {
-    if (table) {
-        if(lock) {
-            lockTableModal(table, onModalResponse);
-            return;
-        }
-        switch (table.state) {
-            case TABLE_AVAILABLE:
-                openNewTable(table, onModalResponse);
-                break;
-            case TABLE_BLOCKED:
-                unlockTableModal(table, onModalResponse);
-                break;
-            case PREPARATION_IN_PROGRESS:
-                preparationInProgressModal(table);
-                break;
-            case READY_TO_SERVE:
-                orderReadyModal(table, onModalResponse);
-                break;
-            default:
-                displayUnknownModal();
-        }
-    }
-}
-
 export const openAddCommentModal = () => {
     displayAddCommentModal();
 }
-
-
-openModalDisplay.propTypes = {
-    table: PropTypes.any,
-    onModalResponse: PropTypes.func
-}
-
-export default openModalDisplay;

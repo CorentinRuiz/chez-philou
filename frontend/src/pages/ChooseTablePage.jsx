@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react'
 import {Box, Grid} from "@mui/material";
 import PropTypes from "prop-types";
 import TableButton from "../components/chooseTable/TableButton";
-import openModalDisplay from "../components/chooseTable/ModalDisplay";
 import {
     PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
@@ -14,6 +13,8 @@ import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd"
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables, updateTable} from "../api/tables";
+import {createNewOrder} from "../api/tablesOrders";
+import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
 
 const {Title} = Typography;
 
@@ -33,16 +34,20 @@ const ChooseTablePage = () => {
 
                 // Elle ne doit pas déjà être bloquée
                 if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
-                else openModalDisplay(table, handleModalResponse, true);
+                else handleClickOnTableItem(table, handleTableClickResponse, true);
             });
         })
     }, [allTables]);
 
     const handleOnClick = (table) => {
-        openModalDisplay(table, handleModalResponse);
+        handleClickOnTableItem(table, handleTableClickResponse)
     }
 
-    const handleModalResponse = (table, response) => {
+    const handleTableClickResponse = (table, response) => {
+        // Réouvrir la table déjà ouverte
+        if (response === "reopen") {
+            navigate(`/takeOrder/${table.number}`);
+        }
         // Bloquer une table
         if (response === "lock") {
             updateTable(table.number, {blocked: true})
@@ -75,12 +80,18 @@ const ChooseTablePage = () => {
 
         // Ouverture nouvelle table
         else if (table.state === TABLE_AVAILABLE) {
-            messageApi.loading(`Opening of table ${table.number} in progress`, 2)
+            openingTable(table)
                 .then(() => {
                     navigate(`/takeOrder/${table.number}`);
+                })
+                .catch(() => {
+                    messageApi.error(`Unable to open table ${table.number}`);
                 });
-            console.log("ouverture avec " + response);
         }
+    }
+
+    const openingTable = async (table) => {
+        await createNewOrder(table.number, 1);
     }
 
     const openQuickSearch = () => {
