@@ -17,6 +17,7 @@ import {TableNumberNotFoundException} from '../exceptions/table-number-not-found
 
 import {TablesService} from '../services/tables.service';
 import {UpdateTableDto} from "../dto/update-table.dto";
+import {TableAlreadyTakenException} from "../exceptions/table-already-taken.exception";
 
 @ApiTags('tables')
 @Controller('/tables')
@@ -50,6 +51,7 @@ export class TablesController {
     @ApiBody({type: UpdateTableDto})
     @ApiCreatedResponse({type: TableWithOrderDto, description: 'The table has been successfully updated.'})
     @ApiConflictResponse({type: TableNumberNotFoundException, description: 'Table not found'})
+    @ApiConflictResponse({type: TableAlreadyTakenException, description: 'Table is taken'})
     @Post('update/:tableNumber')
     async updateTable(@Body() updateTableDto: UpdateTableDto, @Param() getTableParams: GetTableParams, ): Promise<TableWithOrderDto> {
         return await this.tablesService.updateTable(getTableParams.tableNumber, updateTableDto);

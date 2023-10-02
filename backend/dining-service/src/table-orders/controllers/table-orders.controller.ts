@@ -22,6 +22,7 @@ import { TableOrdersService } from '../services/table-orders.service';
 import { AddMenuItemDtoNotFoundException } from '../exceptions/add-menu-item-dto-not-found.exception';
 import { TableOrderAlreadyBilledException } from '../exceptions/table-order-already-billed.exception';
 import { PreparationDto } from '../dto/preparation.dto';
+import {TableBlockedException} from "../../tables/exceptions/table-blocked.exception";
 
 @ApiTags('tableOrders')
 @Controller('/tableOrders')
@@ -38,6 +39,7 @@ export class TableOrdersController {
   @ApiCreatedResponse({ type: TableOrder, description: 'The table has been successfully opened.' })
   @ApiNotFoundResponse({ type: TableNumberNotFoundException, description: 'Table not found' })
   @ApiUnprocessableEntityResponse({ type: TableAlreadyTakenException, description: 'Table is already taken' })
+  @ApiUnprocessableEntityResponse({ type: TableBlockedException, description: 'Table is blocked'})
   @Post()
   async openTable(@Body() startOrderingDto: StartOrderingDto): Promise<TableOrder> {
     return await this.tableOrdersService.startOrdering(startOrderingDto);

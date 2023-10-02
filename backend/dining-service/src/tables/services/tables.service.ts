@@ -13,6 +13,7 @@ import { TableAlreadyTakenException } from '../exceptions/table-already-taken.ex
 import { TableAlreadyFreeException } from '../exceptions/table-already-free.exception';
 import { TablesWithOrderService } from '../../tables-with-order/services/tables-with-order.service';
 import {UpdateTableDto} from "../dto/update-table.dto";
+import {TableBlockedException} from "../exceptions/table-blocked.exception";
 
 @Injectable()
 export class TablesService {
@@ -56,6 +57,8 @@ export class TablesService {
 
     if (foundItem === null) {
       throw new TableNumberNotFoundException(tableNumber);
+    } else if (foundItem.taken) {
+      throw new TableAlreadyTakenException(tableNumber);
     }
 
     foundItem.blocked = updateTableDto.blocked;
@@ -64,10 +67,12 @@ export class TablesService {
   }
 
   async takeTable(tableNumber: number): Promise<Table> {
-    const table:Table = await this.findByNumber(tableNumber);
+    const table: Table = await this.findByNumber(tableNumber);
 
     if (table.taken) {
       throw new TableAlreadyTakenException(tableNumber);
+    } else if (table.blocked) {
+      throw new TableBlockedException(tableNumber);
     }
 
     table.taken = true;
