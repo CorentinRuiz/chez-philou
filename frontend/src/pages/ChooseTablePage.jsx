@@ -91,7 +91,7 @@ const ChooseTablePage = () => {
     }
 
     const openingTable = async (table) => {
-        await createNewOrder(table.number, 1);
+        await createNewOrder(table.number, 1); //Mettre le bon nombres de personnes ???
     }
 
     const openQuickSearch = () => {

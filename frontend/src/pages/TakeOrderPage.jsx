@@ -1,147 +1,244 @@
-import React, {useEffect, useState} from "react";
-import {Divider, Stack} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Divider, Stack } from "@mui/material";
 import CategoryButtons from "../components/takeOrder/CategoryButtons";
 import DishDisplayTable from "../components/takeOrder/DishDisplayTable";
-import {BottomSheet} from "react-spring-bottom-sheet";
+import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import BottomSheetHeader from "../components/takeOrder/bottomSheet/BottomSheetHeader";
 import OrderItem from "../components/takeOrder/bottomSheet/OrderItem";
-import {getMenus} from "../api/menus";
-import {Alert, Button} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import { getMenus } from "../api/menus";
+import { useParams } from "react-router-dom";
+import {
+  addItemToTableOrder,
+  startTableOrderPreparation,
+} from "../api/tablesOrders";
+import { Alert, Button, message } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { getTableInformation } from "../api/tables";
 
 const TakeOrderPage = () => {
-    const [lastButtonClicked, setLastButtonClicked] = useState("");
-    const [displayGrid, setDisplayGrid] = useState(false);
-    const [currDisplayingItems, setCurrDisplayingItems] = useState([]);
-    const [starterItems, setStarterItems] = useState([]);
-    const [mainItems, setMainItems] = useState([]);
-    const [drinksItems, setDrinksItems] = useState([]);
-    const [dessertItems, setDessertItems] = useState([]);
-    const [displayContentBottomSheet, setDisplayContentBottomSheet] =
-        useState(false);
-    const sheetRef = React.useRef();
-    const BOTTOM_SHEET_VALUE_CLOSED = 94 || 0;
+  const [messageApi, contextHolder] = message.useMessage();
+  const [tableOrderId, setTableOrderId] = useState("");
+  const [lastButtonClicked, setLastButtonClicked] = useState("");
+  const [displayGrid, setDisplayGrid] = useState(false);
+  const [currDisplayingItems, setCurrDisplayingItems] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [basket, setBasket] = useState([]);
+  const [displayContentBottomSheet, setDisplayContentBottomSheet] =
+    useState(false);
+  const sheetRef = React.useRef();
 
-    const sortMenusItems = () => {
-        getMenus().then((res) => {
-            for (const item of res.data) {
-                switch (item.category) {
-                    case "MAIN":
-                        mainItems.push(item);
-                        break;
-                    case "DESSERT":
-                        dessertItems.push(item);
-                        break;
-                    case "BEVERAGE":
-                        drinksItems.push(item);
-                        break;
-                    case "STARTER":
-                        starterItems.push(item);
-                        break;
-                }
-            }
-        });
-    };
+  const { tableId } = useParams();
 
-    const getNewItems = (e) => {
-        setDisplayGrid(
-            lastButtonClicked === e.target.innerText ? !displayGrid : true
-        );
-        setLastButtonClicked(e.target.innerText);
+  const BOTTOM_SHEET_VALUE_CLOSED = 94 || 0;
 
-        switch (e.target.innerText.toLowerCase()) {
-            case "main dish":
-                setCurrDisplayingItems(mainItems);
-                break;
-            case "dessert":
-                setCurrDisplayingItems(dessertItems);
-                break;
-            case "drinks":
-                setCurrDisplayingItems(drinksItems);
-                break;
-            case "starter":
-                setCurrDisplayingItems(starterItems);
-                break;
-        }
-    };
+  const initialSheetHeight = window.innerHeight / 9; // Point d'ancrage minimal
+  const fullSheetHeight = window.innerHeight * 0.7; // Point d'ancrage maximal
 
-    const fakeItems = [
-        // {
-        //     name: "Salade César",
-        //     quantity: 1,
-        //     price: 5,
-        //     comment: "",
-        //     color: "#F9D9C9",
-        // },
-        // {
-        //     name: "Fish & Chips",
-        //     quantity: 2,
-        //     price: 15,
-        //     comment: "Sans sauce tartare ",
-        //     color: "#DDD6FC",
-        // },
-        // {
-        //     name: "Burger",
-        //     quantity: 1,
-        //     price: 15,
-        //     comment: "",
-        //     color: "#DDD6FC",
-        // },
-    ];
+  const onBottomSheetOpen = () => {
+    setDisplayContentBottomSheet(true);
+  };
 
-    const initialSheetHeight = window.innerHeight / 9; // Point d'ancrage minimal
-    const fullSheetHeight = window.innerHeight * 0.7; // Point d'ancrage maximal
+  const onBottomSheetDrag = async (event) => {
+    requestAnimationFrame(() => {
+      const height = sheetRef.current.height;
+      // Bottom Sheet Open
+      if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
+      // Bottom Sheet Initial or Open
+      else setDisplayContentBottomSheet(false);
+    });
+  };
 
-    const onBottomSheetOpen = () => {
-        setDisplayContentBottomSheet(true);
-    };
-
-    const onBottomSheetDrag = async () => {
-        requestAnimationFrame(() => {
-            const height = sheetRef.current.height;
-            // Bottom Sheet Open
-            if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
-            // Bottom Sheet Initial or Open
-            else setDisplayContentBottomSheet(false);
-        });
-    };
-
-    useEffect(() => {
-        sortMenusItems();
-    }, []);
-
-    const closeBottomSheet = () => {
-        sheetRef.current.snapTo(({initialSheetHeight, fullSheetHeight}))
+  const getColors = (category) => {
+    switch (category) {
+      case "MAIN":
+        return "#DDD6FC";
+      case "DESSERT":
+        return "#D1E3F4";
+      case "BEVERAGE":
+        return "#C5FBF0";
+      case "STARTER":
+        return "#F9D9C9";
+      default:
+        break;
     }
+  };
 
-    const DisplayItemsInBasket = () => {
-        if (fakeItems.length === 0) return (
-            <Stack direction="column" style={{margin: "20px"}} alignItems="center" spacing={3}>
-                <Alert message="The order is empty" type="info" showIcon
-                       description="There are no items in the order. You can add more using the selection table above."/>
-                <Button icon={<PlusOutlined />} size="large" onClick={closeBottomSheet} type="primary">Add item</Button>
-            </Stack>
-        );
-        else return fakeItems.map((fakeItem) => (
-            <OrderItem key={fakeItem.name} color={fakeItem.color} item={fakeItem}/>
-        ));
-    };
+  const getMenusItems = () => {
+    getMenus().then((res) => {
+      const menuItems = res.data.map((item) => ({
+        ...item,
+        quantity: 0,
+        color: getColors(item.category),
+      }));
+      setMenuItems(menuItems);
+      setCurrDisplayingItems(menuItems);
+    });
+  };
 
-    return (
-        <div>
-            <CategoryButtons selected={lastButtonClicked} functionOnClick={getNewItems} displayGrid={displayGrid}
-            />
-            <Divider style={{margin: 20}}/>
-            {displayGrid ? <DishDisplayTable menuItems={currDisplayingItems}/> : ""}
-            <BottomSheet onSpringStart={onBottomSheetDrag} ref={sheetRef} open={true}
-                         header={<BottomSheetHeader nbItems={5} totalPrice={45.0}/>}
-                         snapPoints={({}) => [initialSheetHeight, fullSheetHeight]}
-                         blocking={displayContentBottomSheet}>
-                <DisplayItemsInBasket/>
-            </BottomSheet>
-        </div>
+  const getNewItems = (e) => {
+    setDisplayGrid(
+      lastButtonClicked === e.target.innerText ? !displayGrid : true
     );
+    setLastButtonClicked(e.target.innerText);
+
+    switch (e.target.innerText.toLowerCase()) {
+      case "main dish":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "MAIN")
+        );
+        break;
+      case "dessert":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "DESSERT")
+        );
+        break;
+      case "drinks":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "BEVERAGE")
+        );
+        break;
+      case "starter":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "STARTER")
+        );
+        break;
+      default:
+        setCurrDisplayingItems(menuItems);
+        break;
+    }
+  };
+
+  const sendOrder = () => {
+    basket.forEach((item) => {
+      console.log(item);
+      addItemToTableOrder(tableOrderId, item._id, item.shortName, item.quantity);
+    });
+    startTableOrderPreparation(tableOrderId).then(() => {
+        messageApi.success(`Commande bien envoyée à la cuisine`);
+    });
+  };
+
+  const checkItemInBasket = () => {
+    menuItems.forEach((menuItem) => {
+      if (menuItem.quantity > 0 && !basket.includes(menuItem)) {
+        setBasket([...basket, menuItem]);
+      } else if (
+        basket.includes(menuItem) &&
+        basket[basket.indexOf(menuItem)].quantity !== menuItem.quantity
+      ) {
+        const newBasket = [...basket];
+        newBasket.splice(basket.indexOf(menuItem), 1);
+        newBasket.push(menuItem);
+        setBasket(newBasket);
+      } else if (menuItem.quantity === 0 && basket.includes(menuItem)) {
+        const newBasket = [...basket];
+        newBasket.splice(basket.indexOf(menuItem), 1);
+        setBasket(newBasket);
+      }
+    });
+  };
+
+  const basketTotalPrice = () => {
+    let totalPrice = 0;
+    basket.forEach((item) => {
+      totalPrice += item.price * item.quantity;
+    });
+    return totalPrice;
+  };
+
+  const basketTotalItems = () => {
+    let totalItems = 0;
+    basket.forEach((item) => {
+      totalItems += item.quantity;
+    });
+    return totalItems;
+  };
+
+  const closeBottomSheet = () => {
+    sheetRef.current.snapTo({ initialSheetHeight, fullSheetHeight });
+  };
+
+  const DisplayItemsInBasket = () => {
+    if (basket.length === 0)
+      return (
+        <Stack
+          direction="column"
+          style={{ margin: "20px" }}
+          alignItems="center"
+          spacing={3}
+        >
+          <Alert
+            message="The order is empty"
+            type="info"
+            showIcon
+            description="There are no items in the order. You can add more using the selection table above."
+          />
+          <Button
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={closeBottomSheet}
+            type="primary"
+          >
+            Add item
+          </Button>
+        </Stack>
+      );
+    else
+      return basket.map((item) => {
+        return (
+          <OrderItem key={item.name} color={item.color} item={item}></OrderItem>
+        );
+      });
+  };
+
+  useEffect(() => {
+    getMenusItems();
+    getTableInformation(tableId).then((res) => {
+      setTableOrderId(res.data.tableOrderId);
+    });
+  }, []);
+
+  useEffect(() => {
+    checkItemInBasket();
+  }, [menuItems]);
+
+  return (
+    <div>
+      <CategoryButtons
+        selected={lastButtonClicked}
+        functionOnClick={getNewItems}
+        displayGrid={displayGrid}
+      />
+      <Divider style={{ margin: 20 }} />
+      {displayGrid ? (
+        <DishDisplayTable
+          currDisplayingItems={currDisplayingItems}
+          menuItems={menuItems}
+          setMenuItemsFunc={setMenuItems}
+        />
+      ) : (
+        ""
+      )}
+      <BottomSheet
+        onSpringStart={onBottomSheetDrag}
+        ref={sheetRef}
+        open={true}
+        header={
+          <BottomSheetHeader
+            nbItems={basketTotalItems()}
+            totalPrice={basketTotalPrice()}
+            onSendOrder={sendOrder}
+          />
+        }
+        blocking={displayContentBottomSheet}
+        snapPoints={({}) => [initialSheetHeight, fullSheetHeight]}
+      >
+        <DisplayItemsInBasket />
+      </BottomSheet>
+      {contextHolder}
+    </div>
+  );
 };
 
 export default TakeOrderPage;

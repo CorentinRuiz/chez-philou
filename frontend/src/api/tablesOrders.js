@@ -15,7 +15,7 @@ export const getAllOrdersByTableOrderId = async (tableOrderId) => {
     return await axiosInstance.get(`${API_BASE_ROUTE}/${tableOrderId}`);
 }
 
-export const addItemToTableOrder = async (menuItemId, menuItemShortName, howMany, comment = null) => {
+export const addItemToTableOrder = async (tableOrderId,menuItemId, menuItemShortName, howMany, comment = null) => {
     const body = {
         menuItemId: menuItemId,
         menuItemShortName: menuItemShortName,
@@ -23,7 +23,7 @@ export const addItemToTableOrder = async (menuItemId, menuItemShortName, howMany
         comment: comment
     };
 
-    return await axiosInstance.post(API_BASE_ROUTE, body);
+    return await axiosInstance.post(`${API_BASE_ROUTE}/${tableOrderId}`, body);
 };
 
 export const startTableOrderPreparation = async (tableOrderId) => {

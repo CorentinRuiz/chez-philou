@@ -3,7 +3,7 @@ import TextArea from "antd/es/input/TextArea";
 import React from "react";
 
 const OrderItem = ({ item, color }) => {
-  const { quantity, name, price, comment } = item;
+  const { quantity, shortName, price, comment } = item;
 
   return (
     <Box margin="10px" display="flex" justifyContent="space-between">
@@ -12,7 +12,7 @@ const OrderItem = ({ item, color }) => {
           display="flex"
           flexDirection="column"
           alignItems="center"
-          sx={{ height: comment !== "" ? "100px" : "50px" }}
+          sx={{ height: comment !== "" && typeof comment !== 'undefined' ? "100px" : "50px" }}
         >
           <Paper
             sx={{
@@ -33,11 +33,9 @@ const OrderItem = ({ item, color }) => {
           </Paper>
           <div style={{ borderRight: "solid 2px #CECBCB", height: "100%" }} />
         </Box>
-        <Box display="flex" flexDirection="column" marginLeft={2} >
-          <Typography variant="h6">
-            {name}
-          </Typography>
-          {comment !== "" ? (
+        <Box display="flex" flexDirection="column" marginLeft={2}>
+          <Typography variant="h6">{shortName}</Typography>
+          {comment !== "" && typeof comment !== 'undefined' ? (
             <TextArea
               disabled
               style={{ resize: "none", marginTop: "5px" }}
