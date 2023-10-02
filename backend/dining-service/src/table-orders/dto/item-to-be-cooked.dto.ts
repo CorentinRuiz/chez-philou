@@ -10,10 +10,13 @@ export class ItemToBeCookedDto {
   @IsPositive()
   howMany: number;
 
+  comment: string;
+
   static itemToBeCookedDtoFactory(orderingLine: OrderingLine): ItemToBeCookedDto {
     const itemToBeCooked: ItemToBeCookedDto = new ItemToBeCookedDto();
     itemToBeCooked.menuItemShortName = orderingLine.item.shortName;
     itemToBeCooked.howMany = orderingLine.howMany;
+    itemToBeCooked.comment = orderingLine.comment;
 
     return itemToBeCooked;
   }

@@ -18,6 +18,10 @@ export class PreparedItem {
   shortName: string;
 
   @ApiProperty()
+  @Prop({ require: false })
+  comment: string;
+
+  @ApiProperty()
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Recipe' })
   recipe: Recipe;
 

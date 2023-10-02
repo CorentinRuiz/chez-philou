@@ -22,7 +22,8 @@ export class KitchenProxyService {
   }
 
   async sendItemsToCook(tableNumber: number, orderingLines: OrderingLine[]): Promise<PreparationDto[]> {
-    const itemsToBeCooked: ItemToBeCookedDto[] = orderingLines.map((orderingLine) => (ItemToBeCookedDto.itemToBeCookedDtoFactory(orderingLine)));
+    const itemsToBeCooked: ItemToBeCookedDto[] =
+      orderingLines.map((orderingLine) => (ItemToBeCookedDto.itemToBeCookedDtoFactory(orderingLine)));
     try {
       const preparationRequest = {
         tableNumber,
