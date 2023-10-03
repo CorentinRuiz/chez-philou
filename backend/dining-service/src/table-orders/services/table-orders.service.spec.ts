@@ -106,11 +106,13 @@ describe('TableOrdersService', () => {
       {
         item: mockOrderingItemList[0],
         howMany: 1,
+        comment: '',
         sentForPreparation: false,
       },
       {
         item: mockOrderingItemList[1],
         howMany: 2,
+        comment: '',
         sentForPreparation: false,
       },
     ];
@@ -119,11 +121,13 @@ describe('TableOrdersService', () => {
       {
         item: mockOrderingItemList[0],
         howMany: 1,
+        comment: '',
         sentForPreparation: true,
       },
       {
         item: mockOrderingItemList[1],
         howMany: 2,
+        comment: '',
         sentForPreparation: true,
       },
     ];
@@ -149,6 +153,7 @@ describe('TableOrdersService', () => {
       menuItemId: mockOrderingItemList[0]._id,
       menuItemShortName: mockOrderingItemList[0].shortName,
       howMany: 42,
+      comment: '',
     };
 
     mockTableList = [
@@ -156,16 +161,19 @@ describe('TableOrdersService', () => {
         _id: 'table 1',
         number: 1,
         taken: false,
+        blocked: false,
       },
       {
         _id: 'table 2',
         number: 2,
         taken: false,
+        blocked: false,
       },
       {
         _id: 'table 3',
         number: 3,
         taken: false,
+        blocked: false,
       },
     ];
 
@@ -173,6 +181,7 @@ describe('TableOrdersService', () => {
       _id: 'table id',
       number: 12,
       taken: false,
+      blocked: false,
     };
 
     mockTakenTable = {
@@ -184,14 +193,17 @@ describe('TableOrdersService', () => {
       {
         _id: 'prepared item 1',
         shortName: 'menu item shortname',
+        comment: '',
       },
       {
         _id: 'prepared item 2',
         shortName: 'menu item shortname',
+        comment: '',
       },
       {
         _id: 'prepared item 3',
         shortName: 'menu item shortname',
+        comment: '',
       }
     ];
 

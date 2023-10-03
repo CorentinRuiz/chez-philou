@@ -59,6 +59,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 1',
         shortName: 'menu item shortname 1',
+        comment: '',
         recipe: mockedRecipes[0],
         shouldStartAt: new Date(),
         startedAt: null,
@@ -67,6 +68,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 2',
         shortName: 'menu item shortname 1',
+        comment: '',
         recipe: mockedRecipes[0],
         shouldStartAt: new Date(),
         startedAt: null,
@@ -75,6 +77,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 3',
         shortName: 'menu item shortname 3',
+        comment: '',
         recipe: mockedRecipes[1],
         shouldStartAt: new Date(),
         startedAt: null,
@@ -83,6 +86,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 4',
         shortName: 'menu item shortname 4',
+        comment: '',
         recipe: mockedRecipes[2],
         shouldStartAt: new Date(),
         startedAt: null,
@@ -91,6 +95,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 5',
         shortName: 'menu item shortname 4',
+        comment: '',
         recipe: mockedRecipes[2],
         shouldStartAt: new Date(),
         startedAt: null,
@@ -99,6 +104,7 @@ describe('PreparedItemsController', () => {
       {
         _id: 'prepared item 6',
         shortName: 'menu item shortname 4',
+        comment: '',
         recipe: mockedRecipes[2],
         shouldStartAt: new Date(),
         startedAt: null,
