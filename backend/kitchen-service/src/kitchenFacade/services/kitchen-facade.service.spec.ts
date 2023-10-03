@@ -263,7 +263,13 @@ describe('KitchenFacadeService', () => {
         Promise.resolve(mockPreparedItemsList[0]),
       );
 
-      const preparedItem = await service.createPreparedItem(mockShortName, mockRecipe, mockShouldStartAt);
+      const mockItemToBeCooked = {
+        menuItemShortName: mockShortName,
+        howMany: 1,
+        comment: '',
+      };
+
+      const preparedItem = await service.createPreparedItem(mockItemToBeCooked, mockRecipe, mockShouldStartAt);
       expect(preparedItem).toEqual(mockPreparedItemsList[0]);
     });
   });
