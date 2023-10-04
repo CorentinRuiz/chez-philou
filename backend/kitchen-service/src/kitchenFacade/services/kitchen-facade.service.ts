@@ -103,22 +103,14 @@ export class KitchenFacadeService {
       newPreparations.push(preparation);
     }
 
-    const coldDishList = byPost[PostEnum.COLD_DISH] || [];
-    const hotDishList = byPost[PostEnum.HOT_DISH] || [];
-    if ((coldDishList.length + hotDishList.length) > 0) {
-      const maxTime = this.computeMaxCookingTime([].concat(coldDishList, hotDishList));
+    // Modif du backend pour ne pas séparer les plats chaud et les plats froid
+    const foodList = [].concat(byPost[PostEnum.COLD_DISH] || [], byPost[PostEnum.HOT_DISH] || []);
+    if (foodList.length > 0) {
+      const maxTime = this.computeMaxCookingTime(foodList);
 
-      if (coldDishList.length > 0) {
-        const preparedItems: PreparedItem[] = await this.startCookingProcess(coldDishList, maxTime);
-        const preparation: Preparation = await this.createPreparation(tableNumber, preparedItems, new Date(now.getTime() + maxTime * 1000));
-        newPreparations.push(preparation);
-      }
-
-      if (hotDishList.length > 0) {
-        const preparedItems: PreparedItem[] = await this.startCookingProcess(hotDishList, maxTime);
-        const preparation: Preparation = await this.createPreparation(tableNumber, preparedItems, new Date(now.getTime() + maxTime * 1000));
-        newPreparations.push(preparation);
-      }
+      const preparedItems: PreparedItem[] = await this.startCookingProcess(foodList, maxTime);
+      const preparation: Preparation = await this.createPreparation(tableNumber, preparedItems, new Date(now.getTime() + maxTime * 1000));
+      newPreparations.push(preparation);
     }
 
     return newPreparations;

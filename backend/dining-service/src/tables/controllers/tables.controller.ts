@@ -50,7 +50,7 @@ export class TablesController {
     @ApiParam({name: 'tableNumber'})
     @ApiBody({type: UpdateTableDto})
     @ApiCreatedResponse({type: TableWithOrderDto, description: 'The table has been successfully updated.'})
-    @ApiConflictResponse({type: TableNumberNotFoundException, description: 'Table not found'})
+    @ApiNotFoundResponse({type: TableNumberNotFoundException, description: 'Table not found'})
     @ApiConflictResponse({type: TableAlreadyTakenException, description: 'Table is taken'})
     @Post('update/:tableNumber')
     async updateTable(@Body() updateTableDto: UpdateTableDto, @Param() getTableParams: GetTableParams, ): Promise<TableWithOrderDto> {
