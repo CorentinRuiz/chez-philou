@@ -10,10 +10,14 @@ export class PreparedItemDto {
   @IsNotEmpty()
   shortName: string;
 
+  @ApiProperty()
+  comment: string;
+
   static kitchenPreparedItemToPreparedItemDtoFactory(kitchenPreparedItem): PreparedItemDto {
     const preparedItem: PreparedItemDto = new PreparedItemDto();
     preparedItem._id = kitchenPreparedItem._id;
     preparedItem.shortName = kitchenPreparedItem.shortName;
+    preparedItem.comment = kitchenPreparedItem.comment;
 
     return preparedItem;
   }

@@ -89,6 +89,7 @@ export class TableOrdersService {
     const orderingLine: OrderingLine = new OrderingLine();
     orderingLine.item = orderingItem;
     orderingLine.howMany = addMenuItemDto.howMany;
+    orderingLine.comment = addMenuItemDto.comment;
 
     return this.tableOrderModel.findByIdAndUpdate(
       tableOrder._id,

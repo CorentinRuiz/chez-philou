@@ -39,6 +39,7 @@ describe('TablesWithOrderService', () => {
       _id: 'table id',
       number: 12,
       taken: false,
+      blocked: false,
     };
 
     mockTakenTable = {

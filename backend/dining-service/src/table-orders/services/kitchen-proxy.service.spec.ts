@@ -45,11 +45,13 @@ describe('KitchenProxyService', () => {
         item: mockOrderingItem,
         howMany: 1,
         sentForPreparation: false,
+        comment: '',
       },
       {
         item: mockOrderingItem,
         howMany: 2,
         sentForPreparation: false,
+        comment: '',
       }
     ];
 

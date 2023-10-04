@@ -36,9 +36,10 @@ export class KitchenFacadeService {
     return Math.max(...recipeWithItemToBeCookedList.map((recipeWithItemToBeCooked) => (recipeWithItemToBeCooked.recipe.meanCookingTimeInSec)));
   }
 
-  async createPreparedItem(shortName: string, recipe: Recipe, shouldStartAt: Date): Promise<PreparedItem> {
+  async createPreparedItem(itemToBeCookedDto: ItemToBeCookedDto, recipe: Recipe, shouldStartAt: Date): Promise<PreparedItem> {
     const newPreparedItem: PreparedItem = new PreparedItem();
-    newPreparedItem.shortName = shortName;
+    newPreparedItem.shortName = itemToBeCookedDto.menuItemShortName;
+    newPreparedItem.comment = itemToBeCookedDto.comment;
     newPreparedItem.recipe = recipe;
     newPreparedItem.shouldStartAt = shouldStartAt;
 
@@ -54,7 +55,7 @@ export class KitchenFacadeService {
       for (let i = 0; i < recipeWithItemToBeCooked.itemToBeCooked.howMany; i += 1) {
         createPreparedItemCalls.push(
           this.createPreparedItem(
-            recipeWithItemToBeCooked.itemToBeCooked.menuItemShortName,
+            recipeWithItemToBeCooked.itemToBeCooked,
             recipeWithItemToBeCooked.recipe,
             new Date(expectedDeliveryTime.getTime() - recipeWithItemToBeCooked.recipe.meanCookingTimeInSec * 1000), // start time is set to finish at expectedDeliveryTime
           ),
