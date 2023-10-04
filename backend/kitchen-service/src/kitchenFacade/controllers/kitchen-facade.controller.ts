@@ -1,27 +1,28 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { Body, Controller, NotFoundException, Post } from '@nestjs/common';
 import { KitchenFacadeService } from '../services/kitchen-facade.service';
 import { RecipeNotFoundException } from '../exceptions/recipe-not-found.exception';
 import { ApiTags } from '@nestjs/swagger';
+import { ItemShortNameDto } from '../dto/item-short-name';
 
 @ApiTags('Kitchen Facade')
 @Controller('kitchen-facade')
 export class KitchenFacadeController {
   constructor(private readonly kitchenFacadeService: KitchenFacadeService) {}
 
-  @Get('meanCookingTime/:menuItemShortName')
+  @Post('meanCookingTime')
   async getRecipeByMenuItemShortName(
-    @Param('menuItemShortName') menuItemShortName: string,
+    @Body() itemShortNameDto: ItemShortNameDto,
   ) {
     try {
       const recipe =
         await this.kitchenFacadeService.getRecipeFromMenuItemShortName(
-          menuItemShortName,
+          itemShortNameDto.shortName,
         );
       return { meanCookingTimeInSec: recipe.meanCookingTimeInSec };
     } catch (error) {
       if (error instanceof RecipeNotFoundException) {
         throw new NotFoundException(
-          `Recipe with shortName '${menuItemShortName}' not found.`,
+          `Recipe with shortName '${itemShortNameDto.shortName}' not found.`,
         );
       }
       throw error;

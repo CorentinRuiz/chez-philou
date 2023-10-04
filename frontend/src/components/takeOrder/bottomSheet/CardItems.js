@@ -31,7 +31,7 @@ const DisplaySubtitle = (props) => {
 CardItem.propTypes = {
     title: PropTypes.string,
     value: PropTypes.string,
-    color: PropTypes.bool,
+    color: PropTypes.string,
     prefix: PropTypes.any,
     suffix: PropTypes.any,
     subtitle: PropTypes.string

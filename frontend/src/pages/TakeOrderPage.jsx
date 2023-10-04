@@ -15,7 +15,8 @@ import {
 import {Alert, Button, message} from "antd";
 import {PlusOutlined, ClockCircleOutlined, TeamOutlined} from "@ant-design/icons";
 import {getTableInformation} from "../api/tables";
-import {CardItem} from "../components/takeOrder/bottomSheet/cardItems/CardItems";
+import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
+import {getMeanCookingTime} from "../api/kitchenInterface";
 
 const TakeOrderPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
@@ -29,6 +30,8 @@ const TakeOrderPage = () => {
         useState(false);
     const sheetRef = React.useRef();
 
+    const [expectedWaitTime, setExpectedWaitTime] = useState(undefined);
+
     const {tableId} = useParams();
 
     const BOTTOM_SHEET_VALUE_CLOSED = 94 || 0;
@@ -38,6 +41,31 @@ const TakeOrderPage = () => {
 
     const onBottomSheetOpen = () => {
         setDisplayContentBottomSheet(true);
+
+        if (basket.length > 0) calculateWaitingTime().then((res) => {
+            setExpectedWaitTime(res.toString());
+        });
+    };
+
+    const calculateWaitingTime = () => {
+        return new Promise((resolve) => {
+            basket
+                .map(async (item) => {
+                    const req = await getMeanCookingTime(item.shortName)
+                    const timeOneItem = req.data.meanCookingTimeInSec;
+                    return timeOneItem * item.quantity;
+                })
+                .reduce((time) => {
+                    return time;
+                })
+                .then((totalTime) => {
+                    resolve(totalTime);
+                });
+        });
+    }
+
+    const closeBottomSheet = () => {
+        sheetRef.current.snapTo({initialSheetHeight, fullSheetHeight});
     };
 
     const onBottomSheetDrag = async () => {
@@ -46,7 +74,11 @@ const TakeOrderPage = () => {
             // Bottom Sheet Open
             if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
             // Bottom Sheet Initial or Open
-            else setDisplayContentBottomSheet(false);
+            else {
+                // Set to 0 the waiting time
+                setExpectedWaitTime(undefined);
+                setDisplayContentBottomSheet(false);
+            }
         });
     };
 
@@ -156,10 +188,6 @@ const TakeOrderPage = () => {
         return totalItems;
     };
 
-    const closeBottomSheet = () => {
-        sheetRef.current.snapTo({initialSheetHeight, fullSheetHeight});
-    };
-
     const BottomSheetContent = () => {
         if (basket.length === 0)
             return (
@@ -174,22 +202,24 @@ const TakeOrderPage = () => {
         else
             return basket.map((item) => {
                 return (
-                    <OrderItem key={item.name} color={item.color} item={item}></OrderItem>
+                    <OrderItem key={item._id} color={item.color} item={item}></OrderItem>
                 );
             });
     };
 
     const BottomSheetFooter = () => {
-        // if (basket.length > 0) {
-        return (<Grid container spacing={2}>
-            <Grid item xs={6}>
-                <CardItem subtitle="Current: 4/5" title="Recommendation" value="5" prefix={<TeamOutlined/>} suffix="plates" color="#FF0000FF"/>
-            </Grid>
-            <Grid item xs={6}>
-                <CardItem title="Expected wait time" value="5" prefix={<ClockCircleOutlined/>} suffix="min"/>
-            </Grid>
-        </Grid>);
-        // }
+        if (basket.length > 0) {
+            return (<Grid container spacing={2}>
+                <Grid item xs={6}>
+                    <CardItem subtitle="Current: 4/5" title="Recommendation" value="5" prefix={<TeamOutlined/>}
+                              suffix="plates" color="#FF0000FF"/>
+                </Grid>
+                <Grid item xs={6}>
+                    <CardItem title="Expected wait time" value={expectedWaitTime} prefix={<ClockCircleOutlined/>}
+                              suffix="sec"/>
+                </Grid>
+            </Grid>);
+        }
     }
 
     useEffect(() => {
