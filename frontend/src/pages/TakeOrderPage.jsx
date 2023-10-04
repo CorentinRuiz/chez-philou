@@ -48,19 +48,18 @@ const TakeOrderPage = () => {
     };
 
     const calculateWaitingTime = () => {
-        return new Promise((resolve) => {
-            basket
-                .map(async (item) => {
-                    const req = await getMeanCookingTime(item.shortName)
-                    const timeOneItem = req.data.meanCookingTimeInSec;
-                    return timeOneItem * item.quantity;
-                })
-                .reduce((time) => {
-                    return time;
-                })
-                .then((totalTime) => {
-                    resolve(totalTime);
-                });
+        return new Promise(async (resolve) => {
+            const itemPromises = basket.map(async (item) => {
+                const req = await getMeanCookingTime(item.shortName);
+                const timeOneItem = req.data.meanCookingTimeInSec;
+                console.log(`time of ${item.shortName} : ${timeOneItem}`);
+                return timeOneItem * item.quantity;
+            });
+
+            const itemTimes = await Promise.all(itemPromises);
+            const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+            resolve(totalTime);
         });
     }
 
