@@ -15,7 +15,7 @@ import { HealthModule } from './health/health.module';
 import { PreparationsModule } from './preparations/preparations.module';
 import { PreparedItemsModule } from './preparedItems/prepared-items.module';
 import { KitchenFacadeModule } from './kitchenFacade/kitchen-facade.module';
-
+import { KitchenFacadeController } from './kitchenFacade/controllers/kitchen-facade.controller';
 
 @Module({
   imports: [
@@ -32,5 +32,6 @@ import { KitchenFacadeModule } from './kitchenFacade/kitchen-facade.module';
     KitchenFacadeModule,
   ],
   providers: [StartupLogicService],
+  controllers: [KitchenFacadeController],
 })
 export class AppModule {}
