@@ -3,7 +3,6 @@ import {Box, Grid} from "@mui/material";
 import PropTypes from "prop-types";
 import TableButton from "../components/chooseTable/TableButton";
 import {
-    PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
     TABLE_AVAILABLE,
     TABLE_BLOCKED,
@@ -80,7 +79,7 @@ const ChooseTablePage = () => {
 
         // Ouverture nouvelle table
         else if (table.state === TABLE_AVAILABLE) {
-            openingTable(table)
+            openingTable(table, response)
                 .then(() => {
                     navigate(`/takeOrder/${table.number}`);
                 })
@@ -90,8 +89,8 @@ const ChooseTablePage = () => {
         }
     }
 
-    const openingTable = async (table) => {
-        await createNewOrder(table.number, 1); //Mettre le bon nombres de personnes ???
+    const openingTable = async (table, numberOfPerson) => {
+        await createNewOrder(table.number, numberOfPerson);
     }
 
     const openQuickSearch = () => {
