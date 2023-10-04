@@ -12,7 +12,14 @@ const DishDisplayTable = ({
   menuItems,
   setMenuItemsFunc,
   currDisplayingItems,
+  addCommentFunc,
 }) => {
+  const displayAddCommentModal = (menuItem) => {
+    console.log("menuItem:", menuItem);
+    console.log("addCommentFunc:", addCommentFunc);
+    openAddCommentModal(menuItem, addCommentFunc);
+  };
+
   const changeQuantity = (menuItem, quantity) => {
     const newMenuItems = [...menuItems];
     const index = newMenuItems.indexOf(menuItem);
@@ -45,7 +52,11 @@ const DishDisplayTable = ({
                     </Title>
                   }
                 </Typography>
-                <IconButton onClick={openAddCommentModal}>
+                <IconButton
+                  onClick={() => {
+                    displayAddCommentModal(menuItem);
+                  }}
+                >
                   <AddCommentIcon />
                 </IconButton>
               </Box>

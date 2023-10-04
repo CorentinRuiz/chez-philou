@@ -82,6 +82,17 @@ const TakeOrderPage = () => {
         });
     };
 
+  const onAddComment = (item, comment) => {
+    if(item.quantity !== 0) {
+    const newBasket = [...basket];
+    newBasket[basket.indexOf(item)].comment = comment;
+    setBasket(newBasket);
+  }
+  else {
+    messageApi.error(`Vous ne pouvez pas ajouter de commentaire à un plat non commandé`);
+  }
+  };
+
     const getColors = (category) => {
         switch (category) {
             case "MAIN":
@@ -239,7 +250,8 @@ const TakeOrderPage = () => {
             <Divider style={{margin: 20}}/>
             {displayGrid ? (
                 <DishDisplayTable currDisplayingItems={currDisplayingItems} menuItems={menuItems}
-                                  setMenuItemsFunc={setMenuItems}/>
+                                  setMenuItemsFunc={setMenuItems}
+                                  addCommentFunc={onAddComment}/>
             ) : (
                 ""
             )}
