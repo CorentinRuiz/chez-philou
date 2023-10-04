@@ -96,21 +96,21 @@ export const openNewTable = (table, onModalResponse) => {
     });
 }
 
-export const displayAddCommentModal = (itemName, onModalResponse) => {
+export const displayAddCommentModal = (item, onModalResponse) => {
     let comment = "";
-
+    console.log(item)
     Modal.confirm({
         title: `Add a comment`,
         content: <div>
-            <Title level={5}>Add a comment to item {itemName}</Title>
+            <Title level={5}>Add a comment to item </Title>
             <TextArea
                 defaultValue=""
-                onChange={(newValue) => comment = newValue}
+                onChange={(e) => comment = e.target.value}
             />
         </div>,
         okText: "Add",
         cancelText: "Cancel",
-        onOk: () => onModalResponse(itemName, comment)
+        onOk: () => onModalResponse(item, comment)
     });
 }
 
@@ -121,6 +121,6 @@ export const displayUnknownModal = () => {
     });
 }
 
-export const openAddCommentModal = () => {
-    displayAddCommentModal();
+export const openAddCommentModal = (item,onModalResponse) => {
+    displayAddCommentModal(item,onModalResponse);
 }

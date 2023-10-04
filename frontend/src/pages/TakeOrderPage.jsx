@@ -40,15 +40,26 @@ const TakeOrderPage = () => {
         setDisplayContentBottomSheet(true);
     };
 
-    const onBottomSheetDrag = async () => {
-        requestAnimationFrame(() => {
-            const height = sheetRef.current.height;
-            // Bottom Sheet Open
-            if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
-            // Bottom Sheet Initial or Open
-            else setDisplayContentBottomSheet(false);
-        });
-    };
+  const onBottomSheetDrag = async (event) => {
+    requestAnimationFrame(() => {
+      const height = sheetRef.current.height;
+      // Bottom Sheet Open
+      if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
+      // Bottom Sheet Initial or Open
+      else setDisplayContentBottomSheet(false);
+    });
+  };
+
+  const onAddComment = (item, comment) => {
+    if(item.quantity !== 0) {
+    const newBasket = [...basket];
+    newBasket[basket.indexOf(item)].comment = comment;
+    setBasket(newBasket);
+  }
+  else {
+    messageApi.error(`Vous ne pouvez pas ajouter de commentaire à un plat non commandé`);
+  }
+  };
 
     const getColors = (category) => {
         switch (category) {
@@ -209,7 +220,8 @@ const TakeOrderPage = () => {
             <Divider style={{margin: 20}}/>
             {displayGrid ? (
                 <DishDisplayTable currDisplayingItems={currDisplayingItems} menuItems={menuItems}
-                                  setMenuItemsFunc={setMenuItems}/>
+                                  setMenuItemsFunc={setMenuItems}
+                                  addCommentFunc={onAddComment}/>
             ) : (
                 ""
             )}

@@ -12,7 +12,12 @@ const OrderItem = ({ item, color }) => {
           display="flex"
           flexDirection="column"
           alignItems="center"
-          sx={{ height: comment !== "" && typeof comment !== 'undefined' ? "100px" : "50px" }}
+          sx={{
+            height:
+              comment !== "" && typeof comment !== "undefined"
+                ? "100px"
+                : "50px",
+          }}
         >
           <Paper
             sx={{
@@ -34,8 +39,10 @@ const OrderItem = ({ item, color }) => {
           <div style={{ borderRight: "solid 2px #CECBCB", height: "100%" }} />
         </Box>
         <Box display="flex" flexDirection="column" marginLeft={2}>
-          <Typography variant="h6">{shortName}</Typography>
-          {comment !== "" && typeof comment !== 'undefined' ? (
+          <Typography variant="h6">
+            {shortName.charAt(0).toUpperCase() + shortName.slice(1)}
+          </Typography>
+          {comment !== "" && typeof comment !== "undefined" ? (
             <TextArea
               disabled
               style={{ resize: "none", marginTop: "5px" }}
@@ -48,7 +55,7 @@ const OrderItem = ({ item, color }) => {
         </Box>
       </Box>
       <Typography variant="body-1" paddingTop="5px">
-        {price} €
+        {quantity} x {price} €
       </Typography>
     </Box>
   );
