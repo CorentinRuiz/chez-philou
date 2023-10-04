@@ -12,11 +12,12 @@ import {
     addItemToTableOrder,
     startTableOrderPreparation,
 } from "../api/tablesOrders";
-import {Alert, Button, message} from "antd";
+import {Alert, Button, Collapse, message} from "antd";
 import {PlusOutlined, ClockCircleOutlined, TeamOutlined} from "@ant-design/icons";
 import {getTableInformation} from "../api/tables";
 import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
 import {getMeanCookingTime} from "../api/kitchenInterface";
+import {getColorDimmed} from "../components/utils";
 
 const TakeOrderPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
@@ -52,7 +53,6 @@ const TakeOrderPage = () => {
             const itemPromises = basket.map(async (item) => {
                 const req = await getMeanCookingTime(item.shortName);
                 const timeOneItem = req.data.meanCookingTimeInSec;
-                console.log(`time of ${item.shortName} : ${timeOneItem}`);
                 return timeOneItem * item.quantity;
             });
 
@@ -81,16 +81,15 @@ const TakeOrderPage = () => {
         });
     };
 
-  const onAddComment = (item, comment) => {
-    if(item.quantity !== 0) {
-    const newBasket = [...basket];
-    newBasket[basket.indexOf(item)].comment = comment;
-    setBasket(newBasket);
-  }
-  else {
-    messageApi.error(`Vous ne pouvez pas ajouter de commentaire à un plat non commandé`);
-  }
-  };
+    const onAddComment = (item, comment) => {
+        if (item.quantity !== 0) {
+            const newBasket = [...basket];
+            newBasket[basket.indexOf(item)].comment = comment;
+            setBasket(newBasket);
+        } else {
+            messageApi.error(`Vous ne pouvez pas ajouter de commentaire à un plat non commandé`);
+        }
+    };
 
     const getColors = (category) => {
         switch (category) {
@@ -183,20 +182,41 @@ const TakeOrderPage = () => {
     };
 
     const basketTotalPrice = () => {
-        let totalPrice = 0;
-        basket.forEach((item) => {
-            totalPrice += item.price * item.quantity;
-        });
-        return totalPrice;
+        return basket
+            .map(item => item.quantity * item.price)
+            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     };
 
     const basketTotalItems = () => {
-        let totalItems = 0;
-        basket.forEach((item) => {
-            totalItems += item.quantity;
-        });
-        return totalItems;
+        return basket
+            .map(item => item.quantity)
+            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     };
+
+    const getGroupedItemInBasket = () => {
+        // Sort item by category
+        const groupedItem = new Map();
+
+        for (const item of basket) {
+            const itemCategory = item.category;
+            if (groupedItem.has(itemCategory)) groupedItem.get(itemCategory).push(item);
+            else groupedItem.set(itemCategory, [item])
+        }
+
+        // TODO Sort category and item in category
+        return Array
+            .from(groupedItem)
+            .map(([category, itemsInCategory]) => (
+                {
+                    style: {background: getColorDimmed(itemsInCategory[0].color, 0.3)},
+                    key: category, // Assuming category is a number, convert it to a string if necessary
+                    label: category,
+                    children: Array
+                        .from(itemsInCategory)
+                        .map(item => <OrderItem key={item._id} color={item.color} item={item}></OrderItem>)
+                }
+            ));
+    }
 
     const BottomSheetContent = () => {
         if (basket.length === 0)
@@ -209,12 +229,9 @@ const TakeOrderPage = () => {
                     </Button>
                 </Stack>
             );
-        else
-            return basket.map((item) => {
-                return (
-                    <OrderItem key={item._id} color={item.color} item={item}></OrderItem>
-                );
-            });
+        else {
+            return <Collapse bordered={false} items={getGroupedItemInBasket()} defaultActiveKey={['MAIN', 'STARTER', 'BEVERAGE', 'DESSERT']}/>;
+        }
     };
 
     const BottomSheetFooter = () => {

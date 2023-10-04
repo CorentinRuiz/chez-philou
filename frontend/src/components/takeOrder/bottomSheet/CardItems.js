@@ -2,6 +2,7 @@ import {Card, Statistic} from "antd";
 import {Typography} from "@mui/material";
 import PropTypes from "prop-types";
 import React from "react";
+import {getColorDimmed} from "../../utils";
 
 export const CardItem = (props) => {
     const {title, value, color = "#000000", prefix, suffix, subtitle} = props;
@@ -12,13 +13,6 @@ export const CardItem = (props) => {
             <DisplaySubtitle subtitle={subtitle} color={color}/>
         </div>
     </Card>
-}
-
-const getColorDimmed = (color) => {
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.05)`;
 }
 
 const DisplaySubtitle = (props) => {
