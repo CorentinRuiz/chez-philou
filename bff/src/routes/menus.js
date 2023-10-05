@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {getMenus} = require("../api/menus");
+const {STARTER_COLOR, MAIN_COLOR, DESSERT_COLOR, BEVERAGE_COLOR} = require("../constants/constants");
 
 router.get("/:type", async (req, res) => {
     getMenus().then((response) => {
@@ -31,14 +32,14 @@ function transformAndFilterData(data, category) {
 function getColorForCategory(category) {
     switch (category) {
         case 'STARTER':
-            return '#F9D9C9';
+            return STARTER_COLOR;
         case 'MAIN':
-            return '#DDD6FC';
+            return MAIN_COLOR;
         case 'DESSERT':
-            return '#D1E3F4';
+            return DESSERT_COLOR;
         case 'BEVERAGE':
-            return '#C5FBF0';
+            return BEVERAGE_COLOR;
         default:
-            return '#DDD6FC';
+            return MAIN_COLOR;
     }
 }
