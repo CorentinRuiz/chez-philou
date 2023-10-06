@@ -15,8 +15,6 @@ const DishDisplayTable = ({
   addCommentFunc,
 }) => {
   const displayAddCommentModal = (menuItem) => {
-    console.log("menuItem:", menuItem);
-    console.log("addCommentFunc:", addCommentFunc);
     openAddCommentModal(menuItem, addCommentFunc);
   };
 

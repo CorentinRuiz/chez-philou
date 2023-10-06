@@ -1,287 +1,349 @@
-import React, {useEffect, useState} from "react";
-import {Divider, Grid, Stack} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Divider, Grid } from "@mui/material";
 import CategoryButtons from "../components/takeOrder/CategoryButtons";
 import DishDisplayTable from "../components/takeOrder/DishDisplayTable";
-import {BottomSheet} from "react-spring-bottom-sheet";
+import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import BottomSheetHeader from "../components/takeOrder/bottomSheet/BottomSheetHeader";
 import OrderItem from "../components/takeOrder/bottomSheet/OrderItem";
-import {getMenus} from "../api/menus";
-import {useParams} from "react-router-dom";
+import { getMenus } from "../api/menus";
+import { useParams,useNavigate } from "react-router-dom";
 import {
-    addItemToTableOrder,
-    startTableOrderPreparation,
+  addItemToTableOrder,
+  startTableOrderPreparation,
+  getAllOrdersByTableOrderId,
+  createBillForTheTable,
 } from "../api/tablesOrders";
-import {Alert, Button, Collapse, message} from "antd";
-import {PlusOutlined, ClockCircleOutlined, TeamOutlined} from "@ant-design/icons";
-import {getTableInformation} from "../api/tables";
-import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
-import {getMeanCookingTime} from "../api/kitchenInterface";
-import {getColorDimmed} from "../components/utils";
+import { Collapse, message } from "antd";
+import {
+  ClockCircleOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
+import { getTableInformation } from "../api/tables";
+import { CardItem } from "../components/takeOrder/bottomSheet/CardItems";
+import { getMeanCookingTime } from "../api/kitchenInterface";
+import { getColorDimmed } from "../components/utils";
+import EmptyBasketDisplay from "../components/takeOrder/bottomSheet/EmptyBasketDisplay";
+import { createRestaurantItemList } from "../api/preparation";
 
 const TakeOrderPage = () => {
-    const [messageApi, contextHolder] = message.useMessage();
-    const [tableOrderId, setTableOrderId] = useState("");
-    const [lastButtonClicked, setLastButtonClicked] = useState("");
-    const [displayGrid, setDisplayGrid] = useState(false);
-    const [currDisplayingItems, setCurrDisplayingItems] = useState([]);
-    const [menuItems, setMenuItems] = useState([]);
-    const [basket, setBasket] = useState([]);
-    const [displayContentBottomSheet, setDisplayContentBottomSheet] =
-        useState(false);
-    const sheetRef = React.useRef();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [tableOrderId, setTableOrderId] = useState("");
+  const [lastButtonClicked, setLastButtonClicked] = useState("");
+  const [displayGrid, setDisplayGrid] = useState(false);
+  const [currDisplayingItems, setCurrDisplayingItems] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [basket, setBasket] = useState([]);
+  const [displayContentBottomSheet, setDisplayContentBottomSheet] =
+    useState(false);
+  const [oldService, setOldService] = useState([]);
+  const sheetRef = React.useRef();
 
-    const [expectedWaitTime, setExpectedWaitTime] = useState(undefined);
+  const [expectedWaitTime, setExpectedWaitTime] = useState(undefined);
 
-    const {tableId} = useParams();
+  const { tableId } = useParams();
+  const navigate = useNavigate();
 
-    const BOTTOM_SHEET_VALUE_CLOSED = 94 || 0;
+  const BOTTOM_SHEET_VALUE_CLOSED = 94 || 0;
 
-    const initialSheetHeight = window.innerHeight / 9; // Point d'ancrage minimal
-    const fullSheetHeight = window.innerHeight * 0.7; // Point d'ancrage maximal
+  const initialSheetHeight = window.innerHeight / 9; // Point d'ancrage minimal
+  const fullSheetHeight = window.innerHeight * 0.7; // Point d'ancrage maximal
 
-    const onBottomSheetOpen = () => {
-        setDisplayContentBottomSheet(true);
+  const onBottomSheetOpen = () => {
+    setDisplayContentBottomSheet(true);
 
-        if (basket.length > 0) calculateWaitingTime().then((res) => {
-            setExpectedWaitTime(res.toString());
+    if (basket.length > 0) calculateWaitingTime().then((res) => {
+        setExpectedWaitTime(res.toString());
+    });
+  };
+
+  const calculateWaitingTime = () => {
+    return new Promise(async (resolve) => {
+        const itemPromises = basket.map(async (item) => {
+            const req = await getMeanCookingTime(item.shortName);
+            const timeOneItem = req.data.meanCookingTimeInSec;
+            return timeOneItem * item.quantity;
         });
-    };
+        const itemTimes = await Promise.all(itemPromises);
+        const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        resolve(totalTime);
+    });
+  };
 
-    const calculateWaitingTime = () => {
-        return new Promise(async (resolve) => {
-            const itemPromises = basket.map(async (item) => {
-                const req = await getMeanCookingTime(item.shortName);
-                const timeOneItem = req.data.meanCookingTimeInSec;
-                return timeOneItem * item.quantity;
-            });
+  const closeBottomSheet = () => {
+    sheetRef.current.snapTo({ initialSheetHeight, fullSheetHeight });
+  };
 
-            const itemTimes = await Promise.all(itemPromises);
-            const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  const onBottomSheetDrag = async () => {
+    requestAnimationFrame(() => {
+      const height = sheetRef.current.height;
+      // Bottom Sheet Open
+      if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
+      // Bottom Sheet Initial or Open
+      else {
+        // Set to 0 the waiting time
+        setExpectedWaitTime(undefined);
+        setDisplayContentBottomSheet(false);
+      }
+    });
+  };
 
-            resolve(totalTime);
-        });
+  const onAddComment = (item, comment) => {
+    if (item.quantity !== 0) {
+      const newBasket = [...basket];
+      newBasket[basket.indexOf(item)].comment = comment;
+      setBasket(newBasket);
+    } else {
+      messageApi.error(
+        `Vous ne pouvez pas ajouter de commentaire à un plat non commandé`
+      );
     }
+  };
 
-    const closeBottomSheet = () => {
-        sheetRef.current.snapTo({initialSheetHeight, fullSheetHeight});
-    };
-
-    const onBottomSheetDrag = async () => {
-        requestAnimationFrame(() => {
-            const height = sheetRef.current.height;
-            // Bottom Sheet Open
-            if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
-            // Bottom Sheet Initial or Open
-            else {
-                // Set to 0 the waiting time
-                setExpectedWaitTime(undefined);
-                setDisplayContentBottomSheet(false);
-            }
-        });
-    };
-
-    const onAddComment = (item, comment) => {
-        if (item.quantity !== 0) {
-            const newBasket = [...basket];
-            newBasket[basket.indexOf(item)].comment = comment;
-            setBasket(newBasket);
-        } else {
-            messageApi.error(`Vous ne pouvez pas ajouter de commentaire à un plat non commandé`);
-        }
-    };
-
-    const getColors = (category) => {
-        switch (category) {
-            case "MAIN":
-                return "#DDD6FC";
-            case "DESSERT":
-                return "#D1E3F4";
-            case "BEVERAGE":
-                return "#C5FBF0";
-            case "STARTER":
-                return "#F9D9C9";
-            default:
-                break;
-        }
-    };
-
-    const getMenusItems = () => {
-        getMenus().then((res) => {
-            const menuItems = res.data.map((item) => ({
-                ...item,
-                quantity: 0,
-                color: getColors(item.category),
-            }));
-            setMenuItems(menuItems);
-            setCurrDisplayingItems(menuItems);
-        });
-    };
-
-    const getNewItems = (e) => {
-        setDisplayGrid(
-            lastButtonClicked === e.target.innerText ? !displayGrid : true
-        );
-        setLastButtonClicked(e.target.innerText);
-
-        switch (e.target.innerText.toLowerCase()) {
-            case "main dish":
-                setCurrDisplayingItems(
-                    menuItems.filter((item) => item.category === "MAIN")
-                );
-                break;
-            case "dessert":
-                setCurrDisplayingItems(
-                    menuItems.filter((item) => item.category === "DESSERT")
-                );
-                break;
-            case "drinks":
-                setCurrDisplayingItems(
-                    menuItems.filter((item) => item.category === "BEVERAGE")
-                );
-                break;
-            case "starter":
-                setCurrDisplayingItems(
-                    menuItems.filter((item) => item.category === "STARTER")
-                );
-                break;
-            default:
-                setCurrDisplayingItems(menuItems);
-                break;
-        }
-    };
-
-    const sendOrder = () => {
-        basket.forEach((item) => {
-            console.log(item);
-            addItemToTableOrder(tableOrderId, item._id, item.shortName, item.quantity);
-        });
-        startTableOrderPreparation(tableOrderId).then(() => {
-            messageApi.success(`Commande bien envoyée à la cuisine`);
-        });
-    };
-
-    const checkItemInBasket = () => {
-        menuItems.forEach((menuItem) => {
-            if (menuItem.quantity > 0 && !basket.includes(menuItem)) {
-                setBasket([...basket, menuItem]);
-            } else if (
-                basket.includes(menuItem) &&
-                basket[basket.indexOf(menuItem)].quantity !== menuItem.quantity
-            ) {
-                const newBasket = [...basket];
-                newBasket.splice(basket.indexOf(menuItem), 1);
-                newBasket.push(menuItem);
-                setBasket(newBasket);
-            } else if (menuItem.quantity === 0 && basket.includes(menuItem)) {
-                const newBasket = [...basket];
-                newBasket.splice(basket.indexOf(menuItem), 1);
-                setBasket(newBasket);
-            }
-        });
-    };
-
-    const basketTotalPrice = () => {
-        return basket
-            .map(item => item.quantity * item.price)
-            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    };
-
-    const basketTotalItems = () => {
-        return basket
-            .map(item => item.quantity)
-            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    };
-
-    const getGroupedItemInBasket = () => {
-        // Sort item by category
-        const groupedItem = new Map();
-
-        for (const item of basket) {
-            const itemCategory = item.category;
-            if (groupedItem.has(itemCategory)) groupedItem.get(itemCategory).push(item);
-            else groupedItem.set(itemCategory, [item])
-        }
-
-        // TODO Sort category and item in category
-        return Array
-            .from(groupedItem)
-            .map(([category, itemsInCategory]) => (
-                {
-                    style: {background: getColorDimmed(itemsInCategory[0].color, 0.3)},
-                    key: category, // Assuming category is a number, convert it to a string if necessary
-                    label: category,
-                    children: Array
-                        .from(itemsInCategory)
-                        .map(item => <OrderItem key={item._id} color={item.color} item={item}></OrderItem>)
-                }
-            ));
+  const getColors = (category) => {
+    switch (category) {
+      case "MAIN":
+        return "#DDD6FC";
+      case "DESSERT":
+        return "#D1E3F4";
+      case "BEVERAGE":
+        return "#C5FBF0";
+      case "STARTER":
+        return "#F9D9C9";
+      default:
+        break;
     }
+  };
 
-    const BottomSheetContent = () => {
-        if (basket.length === 0)
-            return (
-                <Stack direction="column" style={{margin: "20px"}} alignItems="center" spacing={3}>
-                    <Alert message="The order is empty" type="info" showIcon
-                           description="There are no items in the order. You can add more using the selection table above."/>
-                    <Button icon={<PlusOutlined/>} size="large" onClick={closeBottomSheet} type="primary">
-                        Add item
-                    </Button>
-                </Stack>
-            );
-        else {
-            return <Collapse bordered={false} items={getGroupedItemInBasket()} defaultActiveKey={['MAIN', 'STARTER', 'BEVERAGE', 'DESSERT']}/>;
-        }
-    };
+  const getMenusItems = async () => {
+    const menus = await getMenus();
+    const menuItems = menus.data.map((item) => ({
+      ...item,
+      quantity: 0,
+      color: getColors(item.category),
+    }));
+    setMenuItems(menuItems);
+    setCurrDisplayingItems(menuItems);
+  };
 
-    const BottomSheetFooter = () => {
-        if (basket.length > 0) {
-            return (<Grid container spacing={2}>
-                <Grid item xs={6}>
-                    <CardItem subtitle="Current: 4/5" title="Recommendation" value="5" prefix={<TeamOutlined/>}
-                              suffix="plates" color="#FF0000FF"/>
-                </Grid>
-                <Grid item xs={6}>
-                    <CardItem title="Expected wait time" value={expectedWaitTime} prefix={<ClockCircleOutlined/>}
-                              suffix="sec"/>
-                </Grid>
-            </Grid>);
-        }
-    }
-
-    useEffect(() => {
-        getMenusItems();
-        getTableInformation(tableId).then((res) => {
-            setTableOrderId(res.data.tableOrderId);
-        });
-    }, []);
-
-    useEffect(() => {
-        checkItemInBasket();
-    }, [menuItems]);
-
-    return (
-        <div>
-            <CategoryButtons selected={lastButtonClicked} functionOnClick={getNewItems} displayGrid={displayGrid}/>
-            <Divider style={{margin: 20}}/>
-            {displayGrid ? (
-                <DishDisplayTable currDisplayingItems={currDisplayingItems} menuItems={menuItems}
-                                  setMenuItemsFunc={setMenuItems}
-                                  addCommentFunc={onAddComment}/>
-            ) : (
-                ""
-            )}
-            <BottomSheet onSpringStart={onBottomSheetDrag} ref={sheetRef} open={true}
-                         header={
-                             <BottomSheetHeader nbItems={basketTotalItems()} totalPrice={basketTotalPrice()}
-                                                onSendOrder={sendOrder}/>
-                         } blocking={displayContentBottomSheet} footer={<BottomSheetFooter/>}
-                         snapPoints={({}) => [initialSheetHeight, fullSheetHeight]}>
-                <BottomSheetContent/>
-            </BottomSheet>
-            {contextHolder}
-        </div>
+  const getNewItems = (e) => {
+    setDisplayGrid(
+      lastButtonClicked === e.target.innerText ? !displayGrid : true
     );
+    setLastButtonClicked(e.target.innerText);
+
+    switch (e.target.innerText.toLowerCase()) {
+      case "main dish":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "MAIN")
+        );
+        break;
+      case "dessert":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "DESSERT")
+        );
+        break;
+      case "drinks":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "BEVERAGE")
+        );
+        break;
+      case "starter":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "STARTER")
+        );
+        break;
+      default:
+        setCurrDisplayingItems(menuItems);
+        break;
+    }
+  };
+
+  const sendOrder = async () => {
+    const addItemPromises = basket.map((item) => {
+      return addItemToTableOrder(
+        tableOrderId,
+        item._id,
+        item.shortName,
+        item.quantity
+      );
+    });
+    await Promise.all(addItemPromises);
+
+    await startTableOrderPreparation(tableOrderId);
+
+    messageApi.success(`Commande bien envoyée à la cuisine`);
+
+    navigate('/');
+  };
+
+  const onCreateBill = () => {
+    createBillForTheTable(tableOrderId).then((res) => {
+      messageApi.success(`Facture bien créée`);
+      navigate('/');
+    });
+  }
+
+  const checkItemInBasket = () => {
+    menuItems.forEach((menuItem) => {
+      if (menuItem.quantity > 0 && !basket.includes(menuItem)) {
+        setBasket([...basket, menuItem]);
+      } else if (
+        basket.includes(menuItem) &&
+        basket[basket.indexOf(menuItem)].quantity !== menuItem.quantity
+      ) {
+        const newBasket = [...basket];
+        newBasket.splice(basket.indexOf(menuItem), 1);
+        newBasket.push(menuItem);
+        setBasket(newBasket);
+      } else if (menuItem.quantity === 0 && basket.includes(menuItem)) {
+        const newBasket = [...basket];
+        newBasket.splice(basket.indexOf(menuItem), 1);
+        setBasket(newBasket);
+      }
+    });
+  };
+
+  const basketTotalPrice = () => {
+    return basket
+      .map((item) => item.quantity * item.price)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  };
+
+  const basketTotalItems = () => {
+    return basket
+      .map((item) => item.quantity)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  };
+
+  const getOldService = (id) => {
+    getAllOrdersByTableOrderId(id).then((res) => {
+      const oldService = createRestaurantItemList(res.data);
+      setOldService(oldService);
+    });
+  };
+
+  const getGroupedItemByService = () => {
+    return Array.from(oldService).map((item) => ({
+      style: { background: getColorDimmed(item.color,0.3) },
+      key: item._id,
+      label: item.name + " Order",
+      children: Array.from(item.preparedItems).map((item) => (
+        <OrderItem
+          key={item._id}
+          color={item.color}
+          item={item}
+        ></OrderItem>
+      )),
+    }));
+  };
+
+  const BottomSheetContent = () => {
+    return (
+      <>
+        {oldService.length > 0 ? (
+          <Collapse bordered={false} items={getGroupedItemByService()} />
+        ) : (
+          ""
+        )}
+        {basket.length === 0 ? (
+          <EmptyBasketDisplay
+            orderState={oldService.length}
+            closeBottomSheet={closeBottomSheet}
+            onCreateBill={onCreateBill}
+          />
+        ) : (
+          basket.map((item) => (
+            <OrderItem
+              key={item._id}
+              color={item.color}
+              item={item}
+            ></OrderItem>
+          ))
+        )}
+      </>
+    );
+  };
+
+  const BottomSheetFooter = () => {
+    if (basket.length > 0) {
+      return (
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <CardItem
+              subtitle="Current: 4/5"
+              title="Recommendation"
+              value="5"
+              prefix={<TeamOutlined />}
+              suffix="plates"
+              color="#FF0000FF"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <CardItem
+              title="Expected wait time"
+              value={expectedWaitTime}
+              prefix={<ClockCircleOutlined />}
+              suffix="sec"
+            />
+          </Grid>
+        </Grid>
+      );
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      await getMenusItems();
+      await getTableInformation(tableId).then((res) => {
+        setTableOrderId(res.data.tableOrderId);
+        getOldService(res.data.tableOrderId);
+      });
+    })();
+  }, []);
+
+  useEffect(() => {
+    checkItemInBasket();
+  }, [menuItems]);
+
+  return (
+    <div>
+      <CategoryButtons
+        selected={lastButtonClicked}
+        functionOnClick={getNewItems}
+        displayGrid={displayGrid}
+      />
+      <Divider style={{ margin: 20 }} />
+      {displayGrid ? (
+        <DishDisplayTable
+          currDisplayingItems={currDisplayingItems}
+          menuItems={menuItems}
+          setMenuItemsFunc={setMenuItems}
+          addCommentFunc={onAddComment}
+        />
+      ) : (
+        ""
+      )}
+      <BottomSheet
+        onSpringStart={onBottomSheetDrag}
+        ref={sheetRef}
+        open={true}
+        header={
+          <BottomSheetHeader
+            nbItems={basketTotalItems()}
+            totalPrice={basketTotalPrice()}
+            onSendOrder={sendOrder}
+          />
+        }
+        blocking={displayContentBottomSheet}
+        footer={<BottomSheetFooter />}
+        snapPoints={({}) => [initialSheetHeight, fullSheetHeight]}
+      >
+        <BottomSheetContent />
+      </BottomSheet>
+      {contextHolder}
+    </div>
+  );
 };
 
 export default TakeOrderPage;

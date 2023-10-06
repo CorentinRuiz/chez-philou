@@ -1,6 +1,4 @@
 import {Modal, Select, Steps, Typography} from "antd";
-import PropTypes from "prop-types";
-import {PREPARATION_IN_PROGRESS, READY_TO_SERVE, TABLE_AVAILABLE, TABLE_BLOCKED} from "./Constants";
 import {LoadingOutlined} from '@ant-design/icons';
 import TextArea from "antd/es/input/TextArea";
 import {Grid, IconButton} from "@mui/material";
@@ -98,7 +96,6 @@ export const openNewTable = (table, onModalResponse) => {
 
 export const displayAddCommentModal = (item, onModalResponse) => {
     let comment = "";
-    console.log(item)
     Modal.confirm({
         title: `Add a comment`,
         content: <div>

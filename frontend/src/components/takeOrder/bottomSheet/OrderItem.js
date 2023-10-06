@@ -14,7 +14,7 @@ const OrderItem = ({ item, color }) => {
           alignItems="center"
           sx={{
             height:
-              comment !== "" && typeof comment !== "undefined"
+              comment !== null && typeof comment !== "undefined"
                 ? "100px"
                 : "50px",
           }}
@@ -42,7 +42,7 @@ const OrderItem = ({ item, color }) => {
           <Typography variant="h6">
             {shortName.charAt(0).toUpperCase() + shortName.slice(1)}
           </Typography>
-          {comment !== "" && typeof comment !== "undefined" ? (
+          {comment !== null && typeof comment !== "undefined" ? (
             <TextArea
               disabled
               style={{ resize: "none", marginTop: "5px" }}

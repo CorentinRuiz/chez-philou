@@ -74,7 +74,6 @@ const ChooseTablePage = () => {
         // Délivrer
         else if (table.state === READY_TO_SERVE && response === true) {
             messageApi.success(`Table ${table.number} delivered`);
-            console.log("livrer");
         }
 
         // Ouverture nouvelle table
