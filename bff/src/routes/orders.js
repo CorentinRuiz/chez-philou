@@ -51,30 +51,40 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
 
         for (const preparation of result.data) {
 
+            let totalPrice = 0;
             let preparedItems = [];
             for (const item of preparation.preparedItems) {
                 // On cheche si un orderedItem existe déjà pour ce menuItemId
                 const preparedItem = preparedItems.find((orderedItem) => {
-                    return orderedItem._id === item._id;
+                    return orderedItem.shortName === item.shortName;
                 });
 
                 // Si aucun orderedItem n'existe, on le crée
                 if (!preparedItem) {
+                    const priceAndColor = getOrderItemPriceAndColor(menu.data, item);
+
                     preparedItems.push({
                         shortName: item.shortName,
                         howMany: 1,
-                        comment: item.comment
+                        comment: item.comment,
+                        price: priceAndColor.price,
+                        color: priceAndColor.color
                     });
+                    totalPrice += priceAndColor.price;
                 } else {
-                    // Sinon on incrémente la quantité
+                    // Sinon on incrémente la quantité et le prix
+                    const unitPrice = preparedItem.price / preparedItem.howMany;
+                    preparedItem.price += unitPrice;
                     preparedItem.howMany++;
+                    totalPrice += unitPrice;
                 }
             }
 
             toSend.push({
                 _id: preparation._id,
                 preparedItems: preparedItems,
-                color: getMajorityColor(menu.data, preparedItems)
+                price: totalPrice,
+                color: getMajorityColor(preparedItems)
             });
         }
 
@@ -85,24 +95,46 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
     }
 });
 
-function getMajorityColor(menu, items) {
+function getOrderItemPriceAndColor(menu, item) {
+    const menuItem = menu.find((menuItem) => {
+        return menuItem.shortName === item.shortName;
+    });
+
+    const result = {
+        price: menuItem.price,
+        color: MAIN_COLOR
+    }
+
+    switch (menuItem.category) {
+        case 'BEVERAGE':
+            result.color = BEVERAGE_COLOR;
+            return result;
+        case 'STARTER':
+            result.color = STARTER_COLOR;
+            return result;
+        case 'DESSERT':
+            result.color = DESSERT_COLOR;
+            return result;
+        default:
+            return result;
+    }
+}
+
+function getMajorityColor(items) {
     let starterNb = 0;
     let dessertNb = 0;
 
     for (const item of items) {
-        const menuItem = menu.find((menuItem) => {
-            return menuItem.shortName === item.shortName;
-        });
 
-        switch (menuItem.category) {
-            case 'BEVERAGE':
+        switch (item.color) {
+            case BEVERAGE_COLOR:
                 return BEVERAGE_COLOR;
-            case 'MAIN':
+            case MAIN_COLOR:
                 return MAIN_COLOR;
-            case 'STARTER':
+            case STARTER_COLOR:
                 starterNb += item.howMany;
                 break;
-            case 'DESSERT':
+            case DESSERT_COLOR:
                 dessertNb += item.howMany;
                 break;
         }
