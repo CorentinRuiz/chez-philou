@@ -33,3 +33,7 @@ export const startTableOrderPreparation = async (tableOrderId) => {
 export const createBillForTheTable = async (tableOrderId) => {
     return await axiosInstance.post(`${API_BASE_ROUTE}/${tableOrderId}/bill`);
 };
+
+export const getCustomersCountOnTableOrder = async (tableOrderId) => {
+    return (await axiosInstance.get(`${API_BASE_ROUTE}/${tableOrderId}`)).data.customersCount;
+}
