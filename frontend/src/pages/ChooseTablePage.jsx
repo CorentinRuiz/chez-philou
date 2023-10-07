@@ -7,14 +7,13 @@ import {
     TABLE_AVAILABLE,
     TABLE_BLOCKED,
 } from "../components/chooseTable/Constants";
-import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd";
+import {Alert, FloatButton, InputNumber, message, Modal, Skeleton, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables, updateTable} from "../api/tables";
 import {createNewOrder} from "../api/tablesOrders";
 import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
 import {preparationTakenToTable} from "../api/preparations";
-import {getPreparationNotTakenForService} from "../components/chooseTable/FunctionForPreparation";
 
 const {Title} = Typography;
 
@@ -98,6 +97,10 @@ const ChooseTablePage = () => {
         }
     }
 
+    const getPreparationNotTakenForService = (tablePreparations) => {
+        return tablePreparations.filter(preparation => preparation.takenForServiceAt == null);
+    }
+
     const openingTable = async (table, numberOfPerson) => {
         await createNewOrder(table.number, numberOfPerson);
     }
@@ -152,9 +155,12 @@ const ChooseTablePage = () => {
 
     const DisplayTableSelection = () => {
         if (firstLoadInProgress)
-            return <Grid item xs={12} sm={3} key={1}><Alert message="Loading"
-                                                            description="Loading table data in progress. Please wait..."
-                                                            type="warning" showIcon/></Grid>
+            return <Grid item xs={12} sm={3} key={1}>
+                <Alert message="Loading"
+                       description="Loading table data in progress. Please wait..."
+                       type="warning" showIcon/>
+                <Skeleton active/>
+            </Grid>
         else if (allTables.length === 0)
             return <Grid item xs={12} key={1}><Alert message="Error"
                                                      description="There is no table, or we are unable to retrieve information from the table management service..."

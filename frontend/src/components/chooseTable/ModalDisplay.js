@@ -1,13 +1,9 @@
-import {Modal, Select, Steps, Typography} from "antd";
-import {LoadingOutlined} from '@ant-design/icons';
+import {Modal, Select, Typography} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import {Grid, IconButton} from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
 import React from "react";
-import {
-    getPreparationStatus,
-    isPreparationCompleted
-} from "./FunctionForPreparation";
+import {PreparationProgressDisplay} from "./PreparationProgressDisplay";
 
 const {Title} = Typography;
 
@@ -21,41 +17,17 @@ export const unlockTableModal = (table, onModalResponse) => {
     });
 }
 
-const preparationProgressDisplay = (table) => {
-    const preparationCompleted = isPreparationCompleted(table);
-    return (
-        <div>
-            <Title level={4}>Table n°{table.number}</Title>
-            <Steps current={preparationCompleted ? 2 : 1} style={{paddingBlock: "10px"}}
-                   items={[
-                       {
-                           title: 'Sent to the kitchen'
-                       },
-                       {
-                           title: 'In preparation',
-                           subTitle: getPreparationStatus(table),
-                           icon: preparationCompleted ? '' : <LoadingOutlined/>,
-                       },
-                       {
-                           title: 'Order ready'
-                       },
-                   ]}
-            />
-        </div>
-    );
-}
-
 export const preparationInProgressModal = (table) => {
     Modal.info({
         title: "Preparation in progress...",
-        content: preparationProgressDisplay(table)
+        content: <PreparationProgressDisplay table={table}/>
     })
 }
 
 export const orderReadyModal = (table, onModalResponse) => {
     Modal.confirm({
         title: "Order ready",
-        content: preparationProgressDisplay(table),
+        content: <PreparationProgressDisplay table={table}/>,
         okText: "Confirm delivery",
         cancelText: "Wait",
         onOk: () => onModalResponse(table, true)

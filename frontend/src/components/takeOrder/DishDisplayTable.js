@@ -21,7 +21,7 @@ const DishDisplayTable = ({
   const changeQuantity = (menuItem, quantity) => {
     const newMenuItems = [...menuItems];
     const index = newMenuItems.findIndex(item => item._id === menuItem._id);
-    newMenuItems[index].quantity = quantity;
+    newMenuItems[index].quantity = parseInt(quantity, 10) || 0;
     setMenuItemsFunc(newMenuItems);
   };
 
@@ -82,7 +82,7 @@ const DishDisplayTable = ({
                       variant="outlined"
                       value={menuItem.quantity}
                       onChange={(e) =>
-                        changeQuantity(menuItem, parseInt(e.target.value, 10))
+                        changeQuantity(menuItem, e.target.value) // || 0 To avoid NaN Error
                       }
                       inputProps={{
                         style: {
