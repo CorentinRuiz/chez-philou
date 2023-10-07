@@ -1,7 +1,7 @@
 import { axiosInstance } from "./api";
 
-const API_BASE_ROUTE = "/kitchen/kitchen-facade";
+const API_BASE_ROUTE = "/kitchen";
 
-export const getMeanCookingTime = async (shortName) => {
-    return await axiosInstance.post(API_BASE_ROUTE + `/meanCookingTime`, {shortName: shortName});
+export const getMeanCookingTimeOfSeveralItems = async (items) => {
+    return await axiosInstance.post(API_BASE_ROUTE + `/mean-cooking-time`, items);
 };

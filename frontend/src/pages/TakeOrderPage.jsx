@@ -22,7 +22,7 @@ import {
 } from "@ant-design/icons";
 import {getTableInformation} from "../api/tables";
 import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
-import {getMeanCookingTime} from "../api/kitchenInterface";
+import {getMeanCookingTime, getMeanCookingTimeOfSeveralItems} from "../api/kitchenInterface";
 import {getColorDimmed} from "../components/utils";
 import EmptyBasketDisplay from "../components/takeOrder/bottomSheet/EmptyBasketDisplay";
 import {createRestaurantItemList} from "../api/preparation";
@@ -60,16 +60,19 @@ const TakeOrderPage = () => {
     };
 
     const calculateWaitingTime = () => {
-        return new Promise(async (resolve) => {
-            const itemPromises = basket.map(async (item) => {
-                const req = await getMeanCookingTime(item.shortName);
-                const timeOneItem = req.data.meanCookingTimeInSec;
-                return timeOneItem * item.quantity;
-            });
-            const itemTimes = await Promise.all(itemPromises);
-            const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-            resolve(totalTime);
+        getMeanCookingTimeOfSeveralItems(basket).then((res) => {
+            console.log(res);
         });
+        // return new Promise(async (resolve) => {
+        //     const itemPromises = basket.map(async (item) => {
+        //         const req = await getMeanCookingTime(item.shortName);
+        //         const timeOneItem = req.data.meanCookingTimeInSec;
+        //         return timeOneItem * item.quantity;
+        //     });
+        //     const itemTimes = await Promise.all(itemPromises);
+        //     const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        //     resolve(totalTime);
+        // });
     };
 
     const closeBottomSheet = () => {

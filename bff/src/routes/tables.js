@@ -1,19 +1,27 @@
 const express = require("express");
 const {getAllTables, getTableInformation, updateTable} = require("../api/tables");
-const {TABLE_BLOCKED, TABLE_OPEN, TABLE_AVAILABLE} = require("../constants/constants");
+const {TABLE_BLOCKED, TABLE_OPEN, TABLE_AVAILABLE, ANOTHER_SERVICE_READY, READY_TO_SERVE, PREPARATION_IN_PROGRESS} = require("../constants/constants");
 const {getTableOrderById} = require("../api/orders");
+const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    getAllTables().then((response) => {
-        const editedArray = response.data.map((table) => {
+    getAllTables().then(async (response) => {
+        const tables = response.data;
+        const tablePromises = tables.map(async (table) => {
+            const {state, tableOrderInfos} = await getTableState(table);
             return {
                 id: table._id,
                 number: table.number,
-                state: table.blocked ? TABLE_BLOCKED : (table.taken ? TABLE_OPEN : TABLE_AVAILABLE)
+                tableOrderId: table.tableOrderId,
+                state,
+                tableOrderInfos
             };
         });
-        res.status(200).send(editedArray);
+
+        const allTables = await Promise.all(tablePromises);
+
+        res.status(200).send(allTables);
     }).catch((reason) => {
         res.status(500).send(reason);
     });
@@ -43,10 +51,43 @@ router.get("/:tableId/customers-count", async (req, res) => {
         const customersCount = tableOrderInfo.data.customersCount;
 
         // Respond with the number of customers
-        res.status(200).json({ customersCount });
+        res.status(200).json({customersCount});
     } catch (error) {
         console.error("Error while retrieving customers count:", error);
         res.status(500).send("An error occurred while retrieving customers count.");
     }
 });
 module.exports = router;
+
+const getTableState = async (table) => {
+    if (table.blocked) return {state: TABLE_BLOCKED, tableOrderInfos: null};
+    else if (table.taken && table.tableOrderId !== null) {
+        const tableOrders = (await getTableOrderById(table.tableOrderId)).data;
+
+        // Ajout des infos sur la préparation
+        const preparationPromises = tableOrders.preparations.map(async (preparation) => {
+            return (await getPreparationStatusFromId(preparation._id)).data;
+        });
+
+        tableOrders.preparations = await Promise.all(preparationPromises);
+
+        // Il n'y a aucune préparation
+        if (tableOrders.preparations.length === 0) return {state: TABLE_OPEN, tableOrderInfos: tableOrders}
+        // Il y a déjà des préparations, mais toutes ont été délivrées
+        else if (getPreparationNotTakenForService(tableOrders.preparations).length === 0) return {
+            state: ANOTHER_SERVICE_READY,
+            tableOrderInfos: tableOrders
+        }
+        // Il y a des préparations en cours prêtes et non livrées
+        else if (getPreparationNotTakenForService(tableOrders.preparations)[0].completedAt !== null) return {
+            state: READY_TO_SERVE,
+            tableOrderInfos: tableOrders
+        };
+        // Il y a des préparations en cours non prêtes et non livrées
+        else return {state: PREPARATION_IN_PROGRESS, tableOrderInfos: tableOrders};
+    } else return {state: TABLE_AVAILABLE, tableOrderInfos: null};
+}
+
+const getPreparationNotTakenForService = (tablePreparations) => {
+    return tablePreparations.filter(preparation => preparation.takenForServiceAt == null);
+}

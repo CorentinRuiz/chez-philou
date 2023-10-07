@@ -1,6 +1,6 @@
 import { axiosInstance } from "./api";
 
-const API_BASE_ROUTE = "/dining/tableOrders";
+const API_BASE_ROUTE = "/orders";
 
 export const getAllOrders = async () => {
     return await axiosInstance.get(API_BASE_ROUTE);
@@ -8,7 +8,7 @@ export const getAllOrders = async () => {
 
 export const createNewOrder = async (tableNumber, customersCount) => {
     const body = { tableNumber: tableNumber, customersCount: customersCount };
-    return await axiosInstance.post(API_BASE_ROUTE, body);
+    return await axiosInstance.post(`${API_BASE_ROUTE}/open-table`, body);
 };
 
 export const getAllOrdersByTableOrderId = async (tableOrderId) => {

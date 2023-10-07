@@ -3,20 +3,17 @@ import {Box, Grid} from "@mui/material";
 import PropTypes from "prop-types";
 import TableButton from "../components/chooseTable/TableButton";
 import {
-    ANOTHER_SERVICE_READY,
-    PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
     TABLE_AVAILABLE,
     TABLE_BLOCKED,
-    TABLE_OPEN
 } from "../components/chooseTable/Constants";
 import {Alert, FloatButton, InputNumber, message, Modal, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables, updateTable} from "../api/tables";
-import {createNewOrder, getAllOrdersByTableOrderId} from "../api/tablesOrders";
+import {createNewOrder} from "../api/tablesOrders";
 import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
-import {getPreparationStatusFromId, preparationTakenToTable} from "../api/preparations";
+import {preparationTakenToTable} from "../api/preparations";
 import {getPreparationNotTakenForService} from "../components/chooseTable/FunctionForPreparation";
 
 const {Title} = Typography;
@@ -128,53 +125,10 @@ const ChooseTablePage = () => {
         });
     }
 
-    const getTableState = async (table) => {
-        if (table.blocked) return {state: TABLE_BLOCKED, tableOrderInfos: null};
-        else if (table.taken && table.tableOrderId !== null) {
-            const tableOrders = (await getAllOrdersByTableOrderId(table.tableOrderId)).data;
-
-            // Ajout des infos sur la préparation
-            const preparationPromises = tableOrders.preparations.map(async (preparation) => {
-                return (await getPreparationStatusFromId(preparation._id)).data;
-            });
-
-            tableOrders.preparations = await Promise.all(preparationPromises);
-
-            // Il n'y a aucune préparation
-            if (tableOrders.preparations.length === 0) return {state: TABLE_OPEN, tableOrderInfos: tableOrders}
-            // Il y a déjà des préparations, mais toutes ont été délivrées
-            else if (getPreparationNotTakenForService(tableOrders.preparations).length === 0) return {
-                state: ANOTHER_SERVICE_READY,
-                tableOrderInfos: tableOrders
-            }
-            // Il y a des préparations en cours prêtes et non livrées
-            else if (getPreparationNotTakenForService(tableOrders.preparations)[0].completedAt !== null) return {
-                state: READY_TO_SERVE,
-                tableOrderInfos: tableOrders
-            };
-            // Il y a des préparations en cours non prêtes et non livrées
-            else return {state: PREPARATION_IN_PROGRESS, tableOrderInfos: tableOrders};
-        } else return {state: TABLE_AVAILABLE, tableOrderInfos: null};
-    }
-
     const retrieveTables = (withMessageApi = true) => {
         getAllTables()
             .then(async (response) => {
-                const tables = response.data;
-                const tablePromises = tables.map(async (table) => {
-                    const {state, tableOrderInfos} = await getTableState(table);
-                    return {
-                        id: table._id,
-                        number: table.number,
-                        tableOrderId: table.tableOrderId,
-                        state,
-                        tableOrderInfos
-                    };
-                });
-
-                const allTables = await Promise.all(tablePromises);
-
-                setAllTables(allTables);
+                setAllTables(response.data);
 
                 if (withMessageApi) messageApi.success('Tables retrieved');
             })
