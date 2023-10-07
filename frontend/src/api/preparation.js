@@ -29,6 +29,7 @@ export const createRestaurantItemList = (tableOrder) => {
       }
 
       const { color, name } = getMajorityColorAndName(preparedItems);
+
       prepareItems.push({
         _id: preparation._id,
         preparedItems: preparedItems,
@@ -66,9 +67,6 @@ function getOrderItemPriceAndColor(item) {
 }
 
 function getMajorityColorAndName(items) {
-  let starterNb = 0;
-  let dessertNb = 0;
-
   for (const item of items) {
     switch (item.color) {
       case "#C5FBF0":
@@ -76,17 +74,9 @@ function getMajorityColorAndName(items) {
       case "#DDD6FC":
         return { color: "#DDD6FC", name: "Main" };
       case "#F9D9C9":
-        starterNb += item.howMany;
-        break;
+        return { color: "#F9D9C9", name: "Starter" };
       case "#D1E3F4":
-        dessertNb += item.howMany;
-        break;
+        return { color: "#D1E3F4", name: "Dessert" };
     }
-  }
-
-  if (starterNb > dessertNb) {
-    return { color: "#F9D9C9", name: "Starter" };
-  } else {
-    return { color: "#D1E3F4", name: "Dessert" };
   }
 }
