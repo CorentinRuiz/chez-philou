@@ -14,6 +14,7 @@ import {getAllTables, updateTable} from "../api/tables";
 import {createNewOrder} from "../api/tablesOrders";
 import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
 import {preparationTakenToTable} from "../api/preparations";
+import io from 'socket.io-client';
 
 const {Title} = Typography;
 
@@ -23,6 +24,25 @@ const ChooseTablePage = () => {
     const [firstLoadInProgress, setFirstLoadInProgress] = useState(true);
 
     const navigate = useNavigate();
+
+    // WebSocket connection
+    useEffect(() => {
+        // connect to WebSocket server
+        const newSocket = io("http://localhost:8080");
+
+        newSocket.on('connect', () => {
+            console.log('Connected to websocket', newSocket.id);
+        });
+
+        newSocket.on('Update', () => {
+            retrieveTables(true, true);
+        })
+
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from websocket');
+
+        });
+    }, []);
 
     // Prévoit le clic long pour bloquer
     useEffect(() => {
@@ -128,12 +148,14 @@ const ChooseTablePage = () => {
         });
     }
 
-    const retrieveTables = (withMessageApi = true) => {
+    const retrieveTables = (withMessageApi = true, updateFromWebSocket = false) => {
         getAllTables()
             .then(async (response) => {
                 setAllTables(response.data);
 
-                if (withMessageApi) messageApi.success('Tables retrieved');
+                if (withMessageApi)
+                    if (updateFromWebSocket) messageApi.info('Update detected');
+                    else messageApi.success('Tables retrieved');
             })
             .catch((err) => {
                 console.log(err);
