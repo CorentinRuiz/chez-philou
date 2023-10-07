@@ -13,6 +13,8 @@ const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../c
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 const logger = require("../logger");
+const {notifyFrontOnTablesUpdate} = require("../socket");
+const {notifyOrderReadyToDeliver} = require("../socket");
 
 router.get("/", async (req, res) => {
     logger.info("GET /orders");
@@ -27,6 +29,13 @@ router.get("/", async (req, res) => {
         handleError(error, res);
     }
 });
+
+router.post('/ready-to-deliver/', async (req, res) => {
+    const tableNumber = req.body.tableNumber;
+    res.sendStatus(200);
+    notifyOrderReadyToDeliver(tableNumber);
+
+})
 
 router.get("/preparations-status/:tableOrderId", async (req, res) => {
     logger.info("GET /orders/preparations-status/:tableOrderId");
@@ -94,6 +103,7 @@ router.post("/open-table", async (req, res) => {
 
         logger.info("Table opened.");
         res.status(200).json(result.data);
+        notifyFrontOnTablesUpdate();
     } catch (error) {
         handleError(error, res);
     }
@@ -123,6 +133,7 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
 
         logger.info("Command sent.");
         res.status(200).send(result.data);
+        notifyFrontOnTablesUpdate();
     } catch (error) {
         handleError(error, res);
     }
@@ -185,6 +196,7 @@ router.post("/bill/:tableOrderId", async (req, res) => {
 
         logger.info("Bill sent.");
         res.status(200).json(result.data);
+        notifyFrontOnTablesUpdate();
     } catch (error) {
         handleError(error, res);
     }

@@ -37,7 +37,7 @@ export const orderReadyModal = (table, onModalResponse) => {
 export const lockTableModal = (table, onModalResponse) => {
     Modal.confirm({
         title: 'Lock table',
-        content: <Title level={5}>Do you want to block table n°{table.tableNumber}?</Title>,
+        content: <Title level={5}>Do you want to block table n°{table?.number}?</Title>,
         okText: 'Lock', cancelText: 'Cancel',
         onOk: () => onModalResponse(table, "lock"),
     });

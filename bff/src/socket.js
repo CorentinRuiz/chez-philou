@@ -1,8 +1,9 @@
 const http = require("http");
 const { Server } = require("socket.io");
+const {retrieveAllTables} = require("./functions/tables");
 const httpServer = http.createServer();
 
-const PORT = 8080, HOST = "localhost";
+const PORT = 8080, HOST = "192.168.1.12";
 
 const io = new Server(httpServer, {
     cors: {
@@ -11,12 +12,21 @@ const io = new Server(httpServer, {
     },
 });
 
-async function notifyFront() {
-    io.emit("Update");
+async function notifyFrontOnTablesUpdate() {
+    const allTables = await retrieveAllTables();
+    io.emit("TableUpdate", allTables);
+}
+
+async function notifyOrderReadyToDeliver(tableNumber) {
+    const allTables = await retrieveAllTables();
+    io.emit("OrderReady", {allTables, tableNumber});
 }
 
 httpServer.listen(PORT, HOST, () => {
     console.log("WebSocket running on port:", PORT);
 });
 
-module.exports = notifyFront;
+module.exports = {
+    notifyFrontOnTablesUpdate,
+    notifyOrderReadyToDeliver
+};

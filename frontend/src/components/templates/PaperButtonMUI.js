@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import {Paper, styled} from "@mui/material";
+import "./PaperButtonMUI.css";
 
 const PaperButtonMUI = (props) => {
     const {color, title, description, onClick, borderRadius,elevation} = props;
@@ -18,8 +19,8 @@ const PaperButtonMUI = (props) => {
 
     return <PaperItemMUI elevation={elevation} borderradius={borderRadius} backgroundcolor={color} onClick={ e=> onClick(e)}>
         <div>
-            <h1>{title}</h1>
-            <p>{description}</p>
+            <h1 className="disable-text-selection">{title}</h1>
+            <p className="disable-text-selection">{description}</p>
         </div>
     </PaperItemMUI>
 }

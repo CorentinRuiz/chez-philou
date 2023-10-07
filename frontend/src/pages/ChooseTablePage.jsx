@@ -7,7 +7,7 @@ import {
     TABLE_AVAILABLE,
     TABLE_BLOCKED,
 } from "../components/chooseTable/Constants";
-import {Alert, FloatButton, InputNumber, message, Modal, Skeleton, Typography} from "antd";
+import {Alert, FloatButton, InputNumber, message, Modal, notification, Skeleton, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables, updateTable} from "../api/tables";
@@ -19,7 +19,8 @@ import io from 'socket.io-client';
 const {Title} = Typography;
 
 const ChooseTablePage = () => {
-    const [messageApi, contextHolder] = message.useMessage();
+    const [messageApi, messageContextHolder] = message.useMessage();
+    const [notificationApi, notificationContextHolder] = notification.useNotification();
     const [allTables, setAllTables] = useState([]);
     const [firstLoadInProgress, setFirstLoadInProgress] = useState(true);
 
@@ -27,27 +28,46 @@ const ChooseTablePage = () => {
 
     // WebSocket connection
     useEffect(() => {
-        // connect to WebSocket server
-        const newSocket = io("http://localhost:8080");
+        let wsError = false;
+
+        const newSocket = io(`http://${process.env.REACT_APP_WEBSOCKET_URL}`);
 
         newSocket.on('connect', () => {
             console.log('Connected to websocket', newSocket.id);
+            if (wsError) {
+                messageApi.info('Auto-update back online');
+                wsError = false;
+            }
         });
 
-        newSocket.on('Update', () => {
-            retrieveTables(true, true);
+        newSocket.on('TableUpdate', (res) => {
+            setAllTables(res);
+            messageApi.info('Update detected and applied');
+        })
+
+        newSocket.on('OrderReady', (res) => {
+            const {tableNumber, allTables} = res;
+            setAllTables(allTables);
+            notificationApi.info({
+                duration: 15,
+                message: 'Kitchen notification',
+                description: <p>The order table n°<b>{tableNumber}</b> is ready</p>
+            })
         })
 
         newSocket.on('disconnect', () => {
             console.log('Disconnected from websocket');
-
+            messageApi.warning('Auto-update disabled. Error with WS');
+            wsError = true;
         });
     }, []);
 
     // Prévoit le clic long pour bloquer
     useEffect(() => {
-        allTables.forEach((table) => {
-            document.getElementById(`table${table.number}`).addEventListener("contextmenu", (event) => {
+        allTables
+            .filter((table) => table.state === TABLE_AVAILABLE)
+            .forEach((table) => {
+            document.getElementById(`table${table.number}`)?.addEventListener("contextmenu", (event) => {
                 // Désactiver le menu du clic droit
                 event.preventDefault();
 
@@ -148,14 +168,12 @@ const ChooseTablePage = () => {
         });
     }
 
-    const retrieveTables = (withMessageApi = true, updateFromWebSocket = false) => {
+    const retrieveTables = (withMessageApi = true) => {
         getAllTables()
             .then(async (response) => {
                 setAllTables(response.data);
 
-                if (withMessageApi)
-                    if (updateFromWebSocket) messageApi.info('Update detected');
-                    else messageApi.success('Tables retrieved');
+                if (withMessageApi) messageApi.success('Tables retrieved');
             })
             .catch((err) => {
                 console.log(err);
@@ -206,8 +224,9 @@ const ChooseTablePage = () => {
                 <DisplayTableSelection/>
             </Grid>
 
-            {/*Pour afficher des messages*/}
-            {contextHolder}
+            {/*Pour afficher des messages et notification*/}
+            {messageContextHolder}
+            {notificationContextHolder}
         </Box>
     );
 }
