@@ -3,7 +3,7 @@ const { Server } = require("socket.io");
 const {retrieveAllTables} = require("./functions/tables");
 const httpServer = http.createServer();
 
-const PORT = 8080, HOST = "192.168.1.12";
+const PORT = process.env.BFF_WEBSOCKET_PORT, HOST = process.env.BFF_WEBSOCKET_HOST;
 
 const io = new Server(httpServer, {
     cors: {
