@@ -13,8 +13,12 @@ const {getTableOrderById} = require("../api/orders");
 const {getPreparationStatusFromId} = require("../api/preparations");
 const notifyFront = require("../socket");
 const router = express.Router();
+const logger = require("../logger");
 
 router.get("/", (req, res) => {
+    logger.info("GET /tables");
+    logger.info("Front-end is asking for all tables...")
+
     getAllTables().then(async (response) => {
         const tables = response.data;
         const tablePromises = tables.map(async (table) => {
@@ -30,24 +34,34 @@ router.get("/", (req, res) => {
 
         const allTables = await Promise.all(tablePromises);
 
+        logger.info("Sending all tables to front-end...");
         res.status(200).send(allTables);
     }).catch((reason) => {
+        logger.error("Error while retrieving tables");
         res.status(500).send(reason);
     });
 });
 
 router.post("/update-table/:tableId", async (req, res) => {
+    logger.info("POST /tables/update-table/:tableId");
+    logger.info("Front-end is asking to update table " + req.params.tableId + "...");
+
     try {
         const result = await updateTable(req.params.tableId, req.body.blocked);
+
+        logger.info("Table " + req.params.tableId + " updated.");
         res.status(200).json(result.data);
         notifyFront();
     } catch (error) {
-        console.error("Error while updating table:", error);
+        logger.error("Error while updating table");
         res.status(500).send("An error occurred while updating table.");
     }
 });
 
 router.get("/:tableId/customers-count", async (req, res) => {
+    logger.info("GET /tables/:tableId/customers-count");
+    logger.info("Front-end is asking for the number of customers for table " + req.params.tableId + "...");
+
     try {
         const tableId = req.params.tableId;
 
@@ -60,20 +74,26 @@ router.get("/:tableId/customers-count", async (req, res) => {
         const customersCount = tableOrderInfo.data.customersCount;
 
         // Respond with the number of customers
+        logger.info("Sending the number of customers for table " + req.params.tableId + "...");
         res.status(200).json({customersCount});
     } catch (error) {
-        console.error("Error while retrieving customers count:", error);
+        logger.error("Error while retrieving customers count");
         res.status(500).send("An error occurred while retrieving customers count.");
     }
 });
 
 router.get("/tableInfo/:tableId", async (req, res) => {
+    logger.info("GET /tables/tableInfo/:tableId");
+    logger.info("Front-end is asking for the table information for table " + req.params.tableId + "...");
+
     try {
         const tableId = req.params.tableId;
         const tableInfo = await getTableInformation(tableId);
+
+        logger.info("Sending the table information for table " + req.params.tableId + "...");
         res.status(200).json(tableInfo.data);
     } catch (error) {
-        console.error("Error while retrieving customers count:", error);
+        logger.error("Error while retrieving customers count");
         res.status(500).send("An error occurred while retrieving customers count.");
     }
 });

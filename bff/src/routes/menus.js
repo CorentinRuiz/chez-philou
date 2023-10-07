@@ -7,8 +7,12 @@ const {
   DESSERT_COLOR,
   BEVERAGE_COLOR,
 } = require("../constants/constants");
+const logger = require("../logger");
 
 router.get("/:type", async (req, res) => {
+  logger.info("GET /menus/" + req.params.type);
+  logger.info("Front-end is asking for all " + req.params.type + "...");
+
   getMenus()
     .then((response) => {
       if (Array.isArray(response.data)) {
@@ -16,6 +20,7 @@ router.get("/:type", async (req, res) => {
           response.data,
           req.params.type.toUpperCase()
         );
+        logger.info("Sending all " + req.params.type + " to front-end...");
         res.status(200).json(transformedData);
       } else {
         res
@@ -27,7 +32,7 @@ router.get("/:type", async (req, res) => {
       }
     })
     .catch((reason) => {
-      console.error("Error while sending a request to backend:", reason);
+      logger.error("Error while sending a request to backend");
       res
         .status(502)
         .json({ error: "Error while sending a request to backend." });
@@ -35,6 +40,9 @@ router.get("/:type", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
+  logger.info("GET /menus");
+  logger.info("Front-end is asking for all menus...");
+
   getMenus()
     .then((response) => {
       const menuItems = response.data.map((item) => ({
@@ -42,10 +50,11 @@ router.get("/", async (req, res) => {
         quantity: 0,
         color: getColorForCategory(item.category),
       }));
+      logger.info("Sending all menus to front-end...");
       res.send(menuItems);
     })
     .catch((reason) => {
-      console.error("Error while sending a request to backend:", reason);
+      logger.error("Error while sending a request to backend");
       res
         .status(502)
         .json({ error: "Error while sending a request to backend." });

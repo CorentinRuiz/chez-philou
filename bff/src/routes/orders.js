@@ -12,10 +12,16 @@ const {getMenus} = require("../api/menus");
 const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../constants/constants");
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
+const logger = require("../logger");
 
 router.get("/", async (req, res) => {
+    logger.info("GET /orders");
+    logger.info("Front-end is asking for all orders...");
+
     try {
         const result = await getAllOrders();
+
+        logger.info("Sending all orders to front-end...");
         res.status(200).send(result.data);
     } catch (error) {
         handleError(error, res);
@@ -23,6 +29,9 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/preparations-status/:tableOrderId", async (req, res) => {
+    logger.info("GET /orders/preparations-status/:tableOrderId");
+    logger.info("Front-end is asking for the status of the preparations for table order " + req.params.tableOrderId + "...");
+
     const tableOrder = (await getTableOrderById(req.params.tableOrderId)).data;
 
     const preparationPromises = tableOrder.preparations.map(async (preparation) => {
@@ -55,8 +64,13 @@ const getOnlyTimeFromDate = (date) => {
 }
 
 router.get("/:id", async (req, res) => {
+    logger.info("GET /orders/:id");
+    logger.info("Front-end is asking for order " + req.params.id + "...");
+
     try {
         const result = await getTableOrderById(req.params.id);
+
+        logger.info("Sending order " + req.params.id + " to front-end...");
         res.status(200).send(result.data);
     } catch (error) {
         handleError(error, res);
@@ -64,7 +78,11 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/open-table", async (req, res) => {
+    logger.info("POST /orders/open-table");
+    logger.info("Front-end is asking to open a table...");
+
     if (!req.body.tableNumber || !req.body.customersCount) {
+        logger.error("Wrong format of request!");
         res.status(400).send("Wrong format of request!");
         return;
     }
@@ -74,6 +92,7 @@ router.post("/open-table", async (req, res) => {
             req.body.customersCount
         );
 
+        logger.info("Table opened.");
         res.status(200).json(result.data);
     } catch (error) {
         handleError(error, res);
@@ -81,10 +100,12 @@ router.post("/open-table", async (req, res) => {
 });
 
 router.post("/send-command/:tableOrderId", async (req, res) => {
-    console.log("send-command", req.body);
-    console.log("items", req.body.items);
+    logger.info("POST /orders/send-command/:tableOrderId");
+    logger.info("Front-end is asking to send a command to table order " + req.params.tableOrderId + "...");
+
     // If no items have been sent of
     if (!req.body.items || req.body.items.length === 0) {
+        logger.error("Wrong format of request!");
         res.status(400).send("Wrong format of request!", req.body.items);
         return;
     }
@@ -100,6 +121,7 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
 
         const result = await postSendPrepareOrder(req.params.tableOrderId);
 
+        logger.info("Command sent.");
         res.status(200).send(result.data);
     } catch (error) {
         handleError(error, res);
@@ -107,6 +129,9 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
 });
 
 router.get("/getPastOrders/:tableOrderId", async (req, res) => {
+    logger.info("GET /orders/getPastOrders/:tableOrderId");
+    logger.info("Front-end is asking for the past orders of table order " + req.params.tableOrderId + "...");
+
     const menus = await getMenus();
 
     const tableOrder = await getTableOrderById(req.params.tableOrderId);
@@ -146,12 +171,19 @@ router.get("/getPastOrders/:tableOrderId", async (req, res) => {
             });
         }
     }
+
+    logger.info("Sending past orders of table order " + req.params.tableOrderId + " to front-end...");
     res.status(200).send(prepareItems);
 });
 
 router.post("/bill/:tableOrderId", async (req, res) => {
+    logger.info("POST /orders/bill/:tableOrderId");
+    logger.info("Front-end is asking for the bill of table order " + req.params.tableOrderId + "...");
+
     try {
         const result = await postBill(req.params.tableOrderId);
+
+        logger.info("Bill sent.");
         res.status(200).json(result.data);
     } catch (error) {
         handleError(error, res);

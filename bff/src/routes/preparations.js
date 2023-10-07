@@ -1,14 +1,19 @@
 const express = require("express");
 const {preparationTakenToTable} = require("../api/preparations");
 const router = express.Router();
+const logger = require("../logger");
 
 router.post("/:preparationId/taken-to-table", async (req, res) => {
+    logger.info("POST /preparations/:preparationId/taken-to-table");
+    logger.info("Front-end is asking to update preparation " + req.params.preparationId + "...");
+
     try {
         const result = await preparationTakenToTable(req.params.preparationId);
 
+        logger.info("Preparation " + req.params.preparationId + " updated.");
         res.status(200).json(result.data);
     } catch (error) {
-        console.error("Error :" + error);
+        logger.error("Error while updating preparation");
         res.status(500).send("An error occurred.");
     }
 });

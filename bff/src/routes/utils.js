@@ -1,9 +1,11 @@
+const logger = require('../logger')
+
 const handleError = (error, res) => {
     if (error.response) {
-        console.error('Error from backend:', error.response.data);
+        logger.error('Error from backend:', error.response.data);
         res.status(500).send(error.response.data);
     } else {
-        console.error('Unexpected error:', error.message);
+        logger.error('Unexpected error:', error.message);
         res.status(500).send("Unexpected error in bff.");
     }
 }
