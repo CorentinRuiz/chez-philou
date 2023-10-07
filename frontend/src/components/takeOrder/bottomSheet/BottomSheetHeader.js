@@ -12,7 +12,7 @@ const BottomSheetHeader = ({ nbItems, totalPrice, onSendOrder }) => {
           Total {totalPrice} €
         </Typography>
       </Box>
-      <Button onClick={onSendOrder} sx={{backgroundColor: "#EBECFB"}}>
+      <Button disabled={nbItems === 0} onClick={onSendOrder} sx={{backgroundColor: "#EBECFB"}}>
         Send Order
       </Button>
     </Box>

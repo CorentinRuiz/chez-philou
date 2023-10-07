@@ -19,6 +19,10 @@ const allStates = {
         text: 'Blocked',
         color: '#737373'
     },
+    5: {
+        text: 'Table delivered',
+        color: '#a9d0ea'
+    }
 }
 
 export const getTextOfState = (state) => {

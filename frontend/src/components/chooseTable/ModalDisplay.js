@@ -4,6 +4,10 @@ import TextArea from "antd/es/input/TextArea";
 import {Grid, IconButton} from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
 import React from "react";
+import {
+    getPreparationStatus,
+    isPreparationCompleted
+} from "./FunctionForPreparation";
 
 const {Title} = Typography;
 
@@ -17,22 +21,23 @@ export const unlockTableModal = (table, onModalResponse) => {
     });
 }
 
-const preparationProgressDisplay = (table, timeRemaining) => {
+const preparationProgressDisplay = (table) => {
+    const preparationCompleted = isPreparationCompleted(table);
     return (
         <div>
             <Title level={4}>Table n°{table.number}</Title>
-            <Steps current={timeRemaining ? 1 : 2} style={{paddingBlock: "10px"}}
+            <Steps current={preparationCompleted ? 2 : 1} style={{paddingBlock: "10px"}}
                    items={[
                        {
-                           title: 'Sent to the kitchen',
+                           title: 'Sent to the kitchen'
                        },
                        {
                            title: 'In preparation',
-                           subTitle: timeRemaining ? `${timeRemaining}min left` : '',
-                           icon: timeRemaining ? <LoadingOutlined/> : '',
+                           subTitle: getPreparationStatus(table),
+                           icon: preparationCompleted ? '' : <LoadingOutlined/>,
                        },
                        {
-                           title: 'Order ready',
+                           title: 'Order ready'
                        },
                    ]}
             />
@@ -43,7 +48,7 @@ const preparationProgressDisplay = (table, timeRemaining) => {
 export const preparationInProgressModal = (table) => {
     Modal.info({
         title: "Preparation in progress...",
-        content: preparationProgressDisplay(table, 10)
+        content: preparationProgressDisplay(table)
     })
 }
 
@@ -118,6 +123,6 @@ export const displayUnknownModal = () => {
     });
 }
 
-export const openAddCommentModal = (item,onModalResponse) => {
-    displayAddCommentModal(item,onModalResponse);
+export const openAddCommentModal = (item, onModalResponse) => {
+    displayAddCommentModal(item, onModalResponse);
 }

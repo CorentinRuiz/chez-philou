@@ -1,4 +1,11 @@
-import {PREPARATION_IN_PROGRESS, READY_TO_SERVE, TABLE_AVAILABLE, TABLE_BLOCKED, TABLE_OPEN} from "./Constants";
+import {
+    ANOTHER_SERVICE_READY,
+    PREPARATION_IN_PROGRESS,
+    READY_TO_SERVE,
+    TABLE_AVAILABLE,
+    TABLE_BLOCKED,
+    TABLE_OPEN
+} from "./Constants";
 import PropTypes from "prop-types";
 import {displayUnknownModal, lockTableModal, openNewTable, unlockTableModal, preparationInProgressModal, orderReadyModal} from "./ModalDisplay";
 
@@ -23,6 +30,9 @@ export const handleClickOnTableItem = (table, onModalResponse, lock = false) => 
                 break;
             case READY_TO_SERVE:
                 orderReadyModal(table, onModalResponse);
+                break;
+            case ANOTHER_SERVICE_READY:
+                onModalResponse(table, "reopen");
                 break;
             default:
                 displayUnknownModal();
