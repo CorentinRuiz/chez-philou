@@ -1,6 +1,6 @@
 import { getMenus } from "./menus";
 
-const menus = null;
+const menus = await getMenus();
 
 export const createRestaurantItemList = (tableOrder) => {
   const prepareItems = [];

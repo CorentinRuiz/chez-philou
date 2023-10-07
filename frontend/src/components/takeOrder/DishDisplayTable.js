@@ -20,7 +20,7 @@ const DishDisplayTable = ({
 
   const changeQuantity = (menuItem, quantity) => {
     const newMenuItems = [...menuItems];
-    const index = newMenuItems.indexOf(menuItem);
+    const index = newMenuItems.findIndex(item => item._id === menuItem._id);
     newMenuItems[index].quantity = quantity;
     setMenuItemsFunc(newMenuItems);
   };
@@ -31,81 +31,82 @@ const DishDisplayTable = ({
       sx={{ margin: "10px", height: "430px", overflow: "auto" }}
     >
       <Grid container spacing={0.5} padding={1}>
-        {currDisplayingItems.map((menuItem, index) => (
-          <Grid item xs={6} key={index}>
-            <Paper className="menu-item" elevation={0} sx={{ height: 100 }}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                marginBottom="10px"
-                marginLeft={1}
-                marginRight={1}
-              >
-                <Typography variant="h6">
-                  {
-                    <Title style={{ margin: 0 }} level={4}>
-                      {menuItem.shortName.charAt(0).toUpperCase() +
-                        menuItem.shortName.slice(1)}
-                    </Title>
-                  }
-                </Typography>
-                <IconButton
-                  onClick={() => {
-                    displayAddCommentModal(menuItem);
-                  }}
+        {currDisplayingItems.length !== 0 &&
+          currDisplayingItems.map((menuItem, index) => (
+            <Grid item xs={6} key={index}>
+              <Paper className="menu-item" elevation={0} sx={{ height: 100 }}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  marginBottom="10px"
+                  marginLeft={1}
+                  marginRight={1}
                 >
-                  <AddCommentIcon />
-                </IconButton>
-              </Box>
-              <Grid
-                container
-                justifyContent="center"
-                alignItems="center"
-                spacing={0}
-              >
-                <Grid item>
+                  <Typography variant="h6">
+                    {
+                      <Title style={{ margin: 0 }} level={4}>
+                        {menuItem.shortName.charAt(0).toUpperCase() +
+                          menuItem.shortName.slice(1)}
+                      </Title>
+                    }
+                  </Typography>
                   <IconButton
-                    color="primary"
-                    onClick={() =>
-                      changeQuantity(menuItem, menuItem.quantity - 1)
-                    }
-                    disabled={menuItem.quantity === 0}
-                  >
-                    <RemoveIcon />
-                  </IconButton>
-                </Grid>
-                <Grid item>
-                  <TextField
-                    type="number"
-                    variant="outlined"
-                    value={menuItem.quantity}
-                    onChange={(e) =>
-                      changeQuantity(menuItem, parseInt(e.target.value, 10))
-                    }
-                    inputProps={{
-                      style: {
-                        textAlign: "center",
-                        padding: "6px 12px",
-                        width: "40px",
-                      },
+                    onClick={() => {
+                      displayAddCommentModal(menuItem);
                     }}
-                  />
-                </Grid>
-                <Grid item>
-                  <IconButton
-                    color="primary"
-                    onClick={() =>
-                      changeQuantity(menuItem, menuItem.quantity + 1)
-                    }
                   >
-                    <AddIcon />
+                    <AddCommentIcon />
                   </IconButton>
+                </Box>
+                <Grid
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                  spacing={0}
+                >
+                  <Grid item>
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        changeQuantity(menuItem, menuItem.quantity - 1)
+                      }
+                      disabled={menuItem.quantity === 0}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                      type="number"
+                      variant="outlined"
+                      value={menuItem.quantity}
+                      onChange={(e) =>
+                        changeQuantity(menuItem, parseInt(e.target.value, 10))
+                      }
+                      inputProps={{
+                        style: {
+                          textAlign: "center",
+                          padding: "6px 12px",
+                          width: "40px",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        changeQuantity(menuItem, menuItem.quantity + 1)
+                      }
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-        ))}
+              </Paper>
+            </Grid>
+          ))}
       </Grid>
     </Paper>
   );

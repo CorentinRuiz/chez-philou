@@ -17,5 +17,5 @@ export const addTable = async (tableNumber) => {
 };
 
 export const getTableInformation = async (tableNumber) =>{
-    return await axiosInstance.get(`${API_BASE_ROUTE}/${tableNumber}`);
+    return await axiosInstance.get(`${API_BASE_ROUTE}/tableInfo/${tableNumber}`);
 }

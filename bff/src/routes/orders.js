@@ -1,5 +1,5 @@
 const express = require("express");
-const {postOpenTable, getAllOrders, postOrderItem, postSendPrepareOrder, postBill} = require("../api/orders");
+const {postOpenTable, getAllOrders, postOrderItem, postSendPrepareOrder, postBill, getTableOrderById} = require("../api/orders");
 const {handleError} = require("./utils");
 const {getMenus} = require("../api/menus");
 const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../constants/constants");
@@ -8,6 +8,15 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     try {
         const result = await getAllOrders();
+        res.status(200).send(result.data);
+    } catch (error) {
+        handleError(error, res);
+    }
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const result = await getTableOrderById(req.params.id);
         res.status(200).send(result.data);
     } catch (error) {
         handleError(error, res);
