@@ -6,26 +6,26 @@ import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import BottomSheetHeader from "../components/takeOrder/bottomSheet/BottomSheetHeader";
 import OrderItem from "../components/takeOrder/bottomSheet/OrderItem";
-import { getMenuByType, getMenus } from "../api/menus";
+import { getMenus } from "../api/menus";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   addItemToTableOrder,
   startTableOrderPreparation,
-  getAllOrdersByTableOrderId,
   createBillForTheTable,
   getCustomersCountOnTableOrder,
+  getPastOrders,
+  sendOrderToKitchen,
 } from "../api/tablesOrders";
-import {Collapse, message} from "antd";
+import { Collapse, message } from "antd";
+import { ClockCircleOutlined, TeamOutlined } from "@ant-design/icons";
+import { getTableInformation } from "../api/tables";
+import { CardItem } from "../components/takeOrder/bottomSheet/CardItems";
 import {
-    ClockCircleOutlined,
-    TeamOutlined,
-} from "@ant-design/icons";
-import {getTableInformation} from "../api/tables";
-import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
-import {getMeanCookingTime, getMeanCookingTimeOfSeveralItems} from "../api/kitchenInterface";
-import {getColorDimmed} from "../components/utils";
+  getMeanCookingTime,
+  getMeanCookingTimeOfSeveralItems,
+} from "../api/kitchenInterface";
+import { getColorDimmed } from "../components/utils";
 import EmptyBasketDisplay from "../components/takeOrder/bottomSheet/EmptyBasketDisplay";
-import { createRestaurantItemList } from "../api/preparation";
 
 const TakeOrderPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -60,21 +60,21 @@ const TakeOrderPage = () => {
       });
   };
 
-    const calculateWaitingTime = () => {
-        getMeanCookingTimeOfSeveralItems(basket).then((res) => {
-            console.log(res);
-        });
-        // return new Promise(async (resolve) => {
-        //     const itemPromises = basket.map(async (item) => {
-        //         const req = await getMeanCookingTime(item.shortName);
-        //         const timeOneItem = req.data.meanCookingTimeInSec;
-        //         return timeOneItem * item.quantity;
-        //     });
-        //     const itemTimes = await Promise.all(itemPromises);
-        //     const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        //     resolve(totalTime);
-        // });
-    };
+  const calculateWaitingTime = () => {
+    getMeanCookingTimeOfSeveralItems(basket).then((res) => {
+      console.log(res);
+    });
+    // return new Promise(async (resolve) => {
+    //     const itemPromises = basket.map(async (item) => {
+    //         const req = await getMeanCookingTime(item.shortName);
+    //         const timeOneItem = req.data.meanCookingTimeInSec;
+    //         return timeOneItem * item.quantity;
+    //     });
+    //     const itemTimes = await Promise.all(itemPromises);
+    //     const totalTime = itemTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    //     resolve(totalTime);
+    // });
+  };
 
   const closeBottomSheet = () => {
     sheetRef.current.snapTo({ initialSheetHeight, fullSheetHeight });
@@ -115,49 +115,39 @@ const TakeOrderPage = () => {
 
   const getNewItems = (e) => {
     setDisplayGrid(
-        lastButtonClicked === e.target.innerText ? !displayGrid : true
+      lastButtonClicked === e.target.innerText ? !displayGrid : true
     );
     setLastButtonClicked(e.target.innerText);
 
     switch (e.target.innerText.toLowerCase()) {
-        case "main dish":
-            setCurrDisplayingItems(
-                menuItems.filter((item) => item.category === "MAIN")
-            );
-            break;
-        case "dessert":
-            setCurrDisplayingItems(
-                menuItems.filter((item) => item.category === "DESSERT")
-            );
-            break;
-        case "drinks":
-            setCurrDisplayingItems(
-                menuItems.filter((item) => item.category === "BEVERAGE")
-            );
-            break;
-        case "starter":
-            setCurrDisplayingItems(
-                menuItems.filter((item) => item.category === "STARTER")
-            );
-            break;
-        default:
-            setCurrDisplayingItems(menuItems);
-            break;
+      case "main dish":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "MAIN")
+        );
+        break;
+      case "dessert":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "DESSERT")
+        );
+        break;
+      case "drinks":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "BEVERAGE")
+        );
+        break;
+      case "starter":
+        setCurrDisplayingItems(
+          menuItems.filter((item) => item.category === "STARTER")
+        );
+        break;
+      default:
+        setCurrDisplayingItems(menuItems);
+        break;
     }
-};
+  };
 
   const sendOrder = async () => {
-    const addItemPromises = basket.map((item) => {
-      return addItemToTableOrder(
-        tableOrderId,
-        item._id,
-        item.shortName,
-        item.quantity
-      );
-    });
-    await Promise.all(addItemPromises);
-
-    await startTableOrderPreparation(tableOrderId);
+    await sendOrderToKitchen(basket, tableOrderId);
 
     messageApi.success(`Commande bien envoyée à la cuisine`);
 
@@ -204,9 +194,8 @@ const TakeOrderPage = () => {
   };
 
   const getOldService = (id) => {
-    getAllOrdersByTableOrderId(id).then((res) => {
-      const oldService = createRestaurantItemList(res.data);
-      setOldService(oldService);
+    getPastOrders(id).then((res) => {
+      setOldService(res.data);
     });
   };
 

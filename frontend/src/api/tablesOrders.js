@@ -26,14 +26,22 @@ export const addItemToTableOrder = async (tableOrderId,menuItemId, menuItemShort
     return await axiosInstance.post(`${API_BASE_ROUTE}/${tableOrderId}`, body);
 };
 
+export const sendOrderToKitchen = async (tableOrder,tableOrderId) => {
+    return await axiosInstance.post(`${API_BASE_ROUTE}/send-command/${tableOrderId}`, {items: tableOrder});
+};
+
 export const startTableOrderPreparation = async (tableOrderId) => {
     return await axiosInstance.post(`${API_BASE_ROUTE}/${tableOrderId}/prepare`);
 };
 
 export const createBillForTheTable = async (tableOrderId) => {
-    return await axiosInstance.post(`${API_BASE_ROUTE}/${tableOrderId}/bill`);
+    return await axiosInstance.post(`${API_BASE_ROUTE}/bill/${tableOrderId}`);
 };
 
 export const getCustomersCountOnTableOrder = async (tableOrderId) => {
     return (await axiosInstance.get(`${API_BASE_ROUTE}/${tableOrderId}`)).data.customersCount;
+}
+
+export const getPastOrders = async (tableOrderId) => {
+    return await axiosInstance.get(`${API_BASE_ROUTE}/getPastOrders/${tableOrderId}`);
 }
