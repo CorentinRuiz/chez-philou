@@ -2,7 +2,7 @@ version: "3"
 
 services:
   menu-service:
-    image: "nestjs-restaurant/menu-service"
+    image: "nestjs-restaurant-nobff/menu-service"
     restart: always
     ports:
       - 3000:3000

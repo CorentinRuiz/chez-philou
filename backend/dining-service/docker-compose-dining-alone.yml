@@ -2,7 +2,7 @@ version: "3"
 
 services:
   dining-service:
-    image: "nestjs-restaurant/dining-service"
+    image: "nestjs-restaurant-nobff/dining-service"
     restart: always
     ports:
       - 3001:3000
