@@ -230,6 +230,9 @@ function getOrderItemPriceAndColor(item, menus) {
 }
 
 function getMajorityColorAndName(items) {
+    if (items.some((item) => item.catégorie === "MAIN")) {
+        return { color: "#DDD6FC", name: "Main" };
+      }
     for (const item of items) {
         switch (item.color) {
             case BEVERAGE_COLOR:

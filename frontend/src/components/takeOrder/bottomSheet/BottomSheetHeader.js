@@ -8,7 +8,7 @@ const BottomSheetHeader = ({ nbItems, totalPrice, onSendOrder }) => {
         <Typography variant="h5" color="#5F69DD">
           {nbItems} Items
         </Typography>
-        <Typography variant="h§" color="#9899A7">
+        <Typography  color="#9899A7">
           Total {totalPrice} €
         </Typography>
       </Box>

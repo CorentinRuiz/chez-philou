@@ -1,4 +1,4 @@
-import {Modal, Select, Typography} from "antd";
+import {Modal, Select, Typography, Collapse} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import {Grid, IconButton} from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
@@ -40,6 +40,21 @@ export const lockTableModal = (table, onModalResponse) => {
         content: <Title level={5}>Do you want to block table n°{table?.number}?</Title>,
         okText: 'Lock', cancelText: 'Cancel',
         onOk: () => onModalResponse(table, "lock"),
+    });
+}
+
+export const billModal = (orders, onModalResponse, tableOrderId, totalOrderPrice) => {
+    Modal.confirm({
+        title: 'Create Bill',
+        content: (
+            <div>
+                <Title>Receipt</Title>
+                <Collapse bordered={false} items={orders} />
+                <Title level={5} style={{marginTop: "5px", color: "#9899A7"}}>Total {totalOrderPrice} €</Title>
+            </div>
+        ),
+        okText: 'Create Bill', cancelText: 'Cancel',
+        onOk: () => onModalResponse(tableOrderId),
     });
 }
 
