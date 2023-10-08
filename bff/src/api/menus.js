@@ -1,4 +1,5 @@
 const {axiosInstance} = require("./api");
+const logger = require("../logger");
 
 const API_BASE_ROUTE = "/menu/menus";
 
@@ -13,7 +14,7 @@ const getMenus = async () => {
 };
 
 const forceUpdateOfMenu = async () => {
-    console.log("Fetching menus from API");
+    logger.info("Fetching menus from API");
     cacheMenu = axiosInstance.get(API_BASE_ROUTE);
 
     if (timeoutId) {
@@ -21,7 +22,7 @@ const forceUpdateOfMenu = async () => {
     }
     timeoutId = setTimeout(() => {
         cacheMenu = null;
-        console.log('Menu réinitialisé après 30 secondes.');
+        logger.info('Menu reset after 30 seconds');
     }, 30000); // 30 000 millisecondes (30 secondes)
 
     return await cacheMenu;
