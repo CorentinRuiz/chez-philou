@@ -1,9 +1,9 @@
 import React from "react";
 import { Stack } from "@mui/material";
-import { Button, Alert } from "antd";
+import { Button, Alert, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-const EmptyBasketDisplay = ({ orderState, closeBottomSheet, onCreateBill }) => {
+const EmptyBasketDisplay = ({ orderState, closeBottomSheet, onCreateBill, totalOrderPrice }) => {
   return (
     <div>
       <Stack
@@ -29,6 +29,7 @@ const EmptyBasketDisplay = ({ orderState, closeBottomSheet, onCreateBill }) => {
 
         {orderState > 0 ? (
           <>
+          <Typography>Total Order {totalOrderPrice()} € </Typography>
             <Button size="large" onClick={onCreateBill} type="primary">
               Create Bill
             </Button>
