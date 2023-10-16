@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Divider, Grid } from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Divider, Grid} from "@mui/material";
 import CategoryButtons from "../components/takeOrder/CategoryButtons";
 import DishDisplayTable from "../components/takeOrder/DishDisplayTable";
-import { BottomSheet } from "react-spring-bottom-sheet";
+import {BottomSheet} from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import BottomSheetHeader from "../components/takeOrder/bottomSheet/BottomSheetHeader";
 import OrderItem from "../components/takeOrder/bottomSheet/OrderItem";
-import { getMenus } from "../api/menus";
-import { useParams, useNavigate } from "react-router-dom";
-import { billModal } from "../components/chooseTable/ModalDisplay";
+import {getMenus} from "../api/menus";
+import {useNavigate, useParams} from "react-router-dom";
+import {billModal} from "../components/chooseTable/ModalDisplay";
 import {
   createBillForTheTable,
   getCustomersCountOnTableOrder,
   getPastOrders,
   sendOrderToKitchen,
 } from "../api/tablesOrders";
-import { Collapse, message } from "antd";
-import { ClockCircleOutlined, TeamOutlined } from "@ant-design/icons";
-import { getTableInformation } from "../api/tables";
-import { CardItem } from "../components/takeOrder/bottomSheet/CardItems";
-import { getMeanCookingTimeOfSeveralItems } from "../api/kitchenInterface";
-import { getColorDimmed } from "../components/utils";
+import {Collapse, message} from "antd";
+import {ClockCircleOutlined, TeamOutlined} from "@ant-design/icons";
+import {getTableInformation} from "../api/tables";
+import {CardItem} from "../components/takeOrder/bottomSheet/CardItems";
+import {getMeanCookingTimeOfSeveralItems} from "../api/kitchenInterface";
+import {getColorDimmed} from "../components/utils";
 import EmptyBasketDisplay from "../components/takeOrder/bottomSheet/EmptyBasketDisplay";
 
 const TakeOrderPage = () => {
@@ -182,13 +182,11 @@ const TakeOrderPage = () => {
   };
 
   const orderTotalPrice = () => {
-    const totalCost = oldService
-      .flatMap((preparation) =>
-        preparation.preparedItems.map((item) => item.quantity * item.price)
-      )
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
-    return totalCost;
+    return oldService
+        .flatMap((preparation) =>
+            preparation.preparedItems.map((item) => item.quantity * item.price)
+        )
+        .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
   };
 
   const basketTotalItems = () => {

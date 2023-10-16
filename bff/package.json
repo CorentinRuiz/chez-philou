@@ -4,8 +4,8 @@
   "description": "Back for frontend of Chez Philou project",
   "main": "index.js",
   "scripts": {
-    "start": "env-cmd -f .env.example node src/app.js",
-    "start:dev": "env-cmd -f .env.example nodemon src/app.js"
+    "start": "env-cmd -f .env node src/app.js",
+    "start:dev": "env-cmd -f .env nodemon src/app.js"
   },
   "repository": {
     "type": "git",
