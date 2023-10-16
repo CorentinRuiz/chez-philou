@@ -1,7 +1,8 @@
 import {Layout} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {Routes, Route} from "react-router-dom";
-import {TopAppBar} from "./TopAppBar";
+import {TopAppBar} from "./pages/TopAppBar";
+import {PreparationInProgress} from "./pages/PreparationInProgress";
 
 function App() {
     const headerStyle = {
@@ -15,24 +16,26 @@ function App() {
     };
 
     const contentStyle = {
-        backgroundColor: "#ffffff",
-    };
+        background: "#965454",
+        padding: "0 20px",
+    }
 
     return (
         <Layout>
             <Header style={headerStyle}>
                 <TopAppBar/>
             </Header>
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <Content style={contentStyle}>
-                            Accueil
-                        </Content>
-                    }
-                />
-            </Routes>
+            <Content style={contentStyle}>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <p>Accueil</p>
+                        }
+                    />
+                    <Route path="/preparation" element={<PreparationInProgress/>}/>
+                </Routes>
+            </Content>
         </Layout>
     );
 }
