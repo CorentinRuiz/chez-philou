@@ -2,33 +2,37 @@ import { Layout } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import { Routes, Route } from "react-router-dom";
 import { TopAppBar } from "./components/TopAppBar";
-import { PreparationInProgress } from "./pages/PreparationInProgress";
+import {PreparationInProgressPage} from "./pages/PreparationInProgressPage";
 import MenuDisplayingPage from "./pages/MenuDisplayingPage";
 
 function App() {
-  const headerStyle = {
-    textAlign: "left",
-    color: "#000000",
-    paddingInline: 20,
-    backgroundColor: "#FFFFFF",
-    position: "sticky",
-    top: 0,
-    zIndex: 1,
-  };
+    const layoutStyle = {
+        height: "100vh",
+    }
 
-  const contentStyle = {
-    backgroundColor: "#ffffff",
-  };
+    const headerStyle = {
+        textAlign: "left",
+        color: "#000000",
+        paddingInline: 20,
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+    };
+
+    const contentStyle = {
+        background: "#f7f7f7",
+        padding: "0 20px",
+    }
 
   return (
-    <Layout>
+    <Layout style={layoutStyle}>
       <Header style={headerStyle}>
         <TopAppBar />
       </Header>
       <Content style={contentStyle}>
         <Routes>
           <Route path="/" element={<p>Accueil</p>} />
-          <Route path="/preparation" element={<PreparationInProgress />} />
+          <Route path="/preparation" element={<PreparationInProgressPage />} />
           <Route path="/menu" element={<MenuDisplayingPage />}></Route>
         </Routes>
       </Content>
