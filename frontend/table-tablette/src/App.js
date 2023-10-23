@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import { TopAppBar } from "./components/TopAppBar";
 import {PreparationInProgressPage} from "./pages/PreparationInProgressPage";
 import MenuDisplayingPage from "./pages/MenuDisplayingPage";
+import {WelcomingPage} from "./pages/WelcomingPage";
 
 function App() {
     const layoutStyle = {
@@ -31,7 +32,7 @@ function App() {
       </Header>
       <Content style={contentStyle}>
         <Routes>
-          <Route path="/" element={<p>Accueil</p>} />
+          <Route path="/" element={<WelcomingPage/>} />
           <Route path="/preparation" element={<PreparationInProgressPage />} />
           <Route path="/menu" element={<MenuDisplayingPage />}></Route>
         </Routes>
