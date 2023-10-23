@@ -35,6 +35,7 @@ const ChooseTablePage = () => {
         newSocket.on('connect', () => {
             console.log('Connected to websocket', newSocket.id);
             if (wsError) {
+                messageApi.destroy();
                 messageApi.info('Auto-update back online');
                 wsError = false;
             }
@@ -64,7 +65,7 @@ const ChooseTablePage = () => {
 
         newSocket.on('disconnect', () => {
             console.log('Disconnected from websocket');
-            messageApi.warning('Auto-update disabled. Error with WS');
+            messageApi.warning('Auto-update disabled. Error with WS', 0);
             wsError = true;
         });
     }, []);

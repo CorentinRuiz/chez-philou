@@ -10,17 +10,19 @@ import io from 'socket.io-client';
 import {PREPARATION_IN_PROGRESS, TABLE_AVAILABLE, TABLE_OPEN} from "./components/TableStateConstants";
 import {PhoneOutlined} from "@ant-design/icons";
 import {callWaiter} from "./api/waiter";
+import {Backdrop, Paper, Typography} from "@mui/material";
 
 function App() {
     const TABLE_NUMBER = 1;
     const [notificationApi, notificationContextHolder] = notification.useNotification();
     const [tableInfos, setTableInfos] = useState(null);
     const [callingWaiter, setCallingWaiter] = useState(false);
+    const [outOfService, setOutOfService] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(tableInfos === null) return;
+        if (tableInfos === null) return;
 
         switch (tableInfos.state) {
             case TABLE_AVAILABLE:
@@ -47,7 +49,7 @@ function App() {
         newSocket.on('connect', () => {
             console.log('Connected to websocket', newSocket.id);
             if (wsError) {
-                notificationApi.destroy();
+                setOutOfService(false);
                 notificationApi.info({
                     message: 'Connexion rétablie',
                     description: "Tablette de nouveau opérationnelle"
@@ -58,16 +60,18 @@ function App() {
 
         newSocket.on('TableInfos', (res) => {
             console.log('Table Infos', res);
-            if(parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
+            if (parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
+        })
+
+        newSocket.on('connect_error', () => {
+            if (wsError) return;
+            setOutOfService(true);
+            wsError = true;
         })
 
         newSocket.on('disconnect', () => {
             console.log('Disconnected from websocket');
-            notificationApi.error({
-                message: 'Erreur sur la tablette',
-                duration: -1,
-                description: "Veuillez vous rapprocher d'un serveur"
-            });
+            setOutOfService(true);
             wsError = true;
         });
     }, []);
@@ -111,12 +115,24 @@ function App() {
             });
     }
 
+    const backdropPaperStyle = {
+        width: '70%',
+        paddingInline: '30px',
+        paddingBlock: '60px',
+    }
+
     return (
         <Layout style={layoutStyle}>
             {notificationContextHolder}
 
+            <Backdrop open={outOfService} style={{zIndex: 2}}>
+                <Paper elevation={0} style={backdropPaperStyle} id="paper-backdrop-error">
+                        <Typography textAlign="center" variant="h1">Tablette hors service</Typography>
+                </Paper>
+            </Backdrop>
+
             <Header style={headerStyle}>
-                <Button  style={callWaiterButtonStyle} type="primary" shape="round"
+                <Button style={callWaiterButtonStyle} type="primary" shape="round"
                         icon={<PhoneOutlined/>} onClick={onCallWaiter} loading={callingWaiter}
                         size="middle">Appeler le serveur</Button>
 
