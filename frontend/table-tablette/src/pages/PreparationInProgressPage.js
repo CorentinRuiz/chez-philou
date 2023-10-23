@@ -2,8 +2,9 @@ import PreparationCommandVideo from '../ressources/preparation_commande.mp4';
 import WaiterComingGif from '../ressources/waiter-coming.gif';
 import {Stack} from "@mui/material";
 import {PaperGradientAnimation} from "../components/PaperGradientAnimation";
+import {useEffect} from "react";
 
-export const PreparationInProgressPage = () => {
+export const PreparationInProgressPage = ({tableInfos}) => {
     const timeRemaining = 10;
 
     const backgroundVideoStyle = {
@@ -20,6 +21,10 @@ export const PreparationInProgressPage = () => {
         height: '100%',
         textAlign: 'center'
     }
+
+    useEffect(() => {
+        console.log(tableInfos);
+    }, [tableInfos])
 
     const DisplayCorrectAnimation = () => {
         if (timeRemaining > 0) return (

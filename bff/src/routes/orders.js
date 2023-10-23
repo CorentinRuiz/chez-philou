@@ -13,7 +13,7 @@ const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../c
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 const logger = require("../logger");
-const {notifyFrontOnTablesUpdate} = require("../socket");
+const {notifyFrontOnTablesUpdate, notifyTableInfos} = require("../socket");
 const {notifyOrderReadyToDeliver} = require("../socket");
 
 router.get("/", async (req, res) => {
@@ -104,14 +104,18 @@ router.post("/open-table", async (req, res) => {
         logger.info("Table opened.");
         res.status(200).json(result.data);
         notifyFrontOnTablesUpdate();
+        notifyTableInfos(req.body.tableNumber)
     } catch (error) {
         handleError(error, res);
     }
 });
 
 router.post("/send-command/:tableOrderId", async (req, res) => {
+    const tableOrderId = req.params.tableOrderId;
     logger.info("POST /orders/send-command/:tableOrderId");
-    logger.info("Front-end is asking to send a command to table order " + req.params.tableOrderId + "...");
+    logger.info("Front-end is asking to send a command to table order " + tableOrderId + "...");
+
+    const tableNumber = (await getTableOrderById(req.params.tableOrderId)).data.tableNumber;
 
     // If no items have been sent of
     if (!req.body.items || req.body.items.length === 0) {
@@ -121,7 +125,7 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
     }
     try {
         for (const item of req.body.items) {
-            await postOrderItem(req.params.tableOrderId, {
+            await postOrderItem(tableOrderId, {
                 menuItemId: item._id,
                 menuItemShortName: item.shortName,
                 howMany: item.quantity,
@@ -129,11 +133,12 @@ router.post("/send-command/:tableOrderId", async (req, res) => {
             });
         }
 
-        const result = await postSendPrepareOrder(req.params.tableOrderId);
+        const result = await postSendPrepareOrder(tableOrderId);
 
         logger.info("Command sent.");
         res.status(200).send(result.data);
         notifyFrontOnTablesUpdate();
+        notifyTableInfos(tableNumber);
     } catch (error) {
         handleError(error, res);
     }

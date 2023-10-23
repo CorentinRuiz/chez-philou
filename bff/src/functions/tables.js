@@ -1,4 +1,4 @@
-const {getAllTables} = require("../api/tables");
+const {getAllTables, getTableInformation} = require("../api/tables");
 const {
     TABLE_BLOCKED,
     TABLE_OPEN,
@@ -30,6 +30,10 @@ const retrieveAllTables = () => {
             reject(reason);
         })
     })
+}
+
+const getTableStateByTableNumber = async (tableNumber) => {
+    return await getTableState((await getTableInformation(tableNumber)).data);
 }
 
 const getTableState = async (table) => {
@@ -66,5 +70,7 @@ const getPreparationNotTakenForService = (tablePreparations) => {
 }
 
 module.exports = {
-    retrieveAllTables
+    retrieveAllTables,
+    getTableState,
+    getTableStateByTableNumber
 };

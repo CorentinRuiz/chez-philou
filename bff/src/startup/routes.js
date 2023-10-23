@@ -6,6 +6,7 @@ const tablesRouter = require("../routes/tables");
 const kitchenRouter = require("../routes/kitchen");
 const ordersRouter = require("../routes/orders");
 const preparationsRouter = require("../routes/preparations");
+const waiterRouter = require("../routes/waiter");
 
 module.exports = function (app) {
     app.use(express.json());
@@ -23,4 +24,5 @@ module.exports = function (app) {
     app.use("/kitchen", kitchenRouter);
     app.use("/orders", ordersRouter);
     app.use("/preparations", preparationsRouter);
+    app.use('/waiter', waiterRouter)
 };

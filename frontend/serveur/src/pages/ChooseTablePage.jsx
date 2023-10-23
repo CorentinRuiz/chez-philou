@@ -20,7 +20,7 @@ const {Title} = Typography;
 
 const ChooseTablePage = () => {
     const [messageApi, messageContextHolder] = message.useMessage();
-    const [notificationApi, notificationContextHolder] = notification.useNotification();
+    const [notificationApi, notificationContextHolder] = notification.useNotification()
     const [allTables, setAllTables] = useState([]);
     const [firstLoadInProgress, setFirstLoadInProgress] = useState(true);
 
@@ -52,6 +52,13 @@ const ChooseTablePage = () => {
                 duration: 15,
                 message: 'Kitchen notification',
                 description: <p>The order table n°<b>{tableNumber}</b> is ready</p>
+            })
+        })
+
+        newSocket.on('CallWaiter', (tableNumber) => {
+            notificationApi.warning({
+                duration: 15,
+                message: <p>The table n°<b>{tableNumber}</b> need help</p>
             })
         })
 
