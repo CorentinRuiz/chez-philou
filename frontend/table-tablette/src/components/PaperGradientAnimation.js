@@ -1,7 +1,12 @@
 import {Paper, Stack, Typography} from "@mui/material";
 import "../styles/paperGradientAnimation.css"
+import {PREPARATION_IN_PROGRESS, READY_TO_SERVE} from "./TableStateConstants";
 
-export const PaperGradientAnimation = ({timeRemainingInMinutes}) => {
+export const PaperGradientAnimation = ({tableInfos}) => {
+    const state = tableInfos?.state ?? 0;
+    const timeRemainingInMinutes = 10;
+    // TODO afficher le bon temps restant
+
     const messageDisplayStyle = {
         width: '70%',
         paddingInline: '30px',
@@ -9,18 +14,23 @@ export const PaperGradientAnimation = ({timeRemainingInMinutes}) => {
     }
 
     const getIdName = () => {
-        if(timeRemainingInMinutes > 0) return "paper-gradient-animation-inprogress";
-        else return "paper-gradient-animation-ready";
+        if(state === PREPARATION_IN_PROGRESS) return "paper-gradient-animation-inprogress";
+        else if (state === READY_TO_SERVE) return "paper-gradient-animation-ready";
     }
 
     const getSubtitle = () => {
-        if(timeRemainingInMinutes > 0) return `Temps restant : ${timeRemainingInMinutes} min`;
-        else return "Le serveur est en route"
+        if(state === PREPARATION_IN_PROGRESS) {
+            if(timeRemainingInMinutes > 0) return `Temps restant : ${timeRemainingInMinutes} min`;
+            else return 'La commande sera prête sous peu...'
+        }
+        if(state === READY_TO_SERVE) return "Le serveur est en route"
+        else return "Veuillez vous rapprocher d'un serveur";
     }
 
     const getTitle = () => {
-        if(timeRemainingInMinutes > 0) return "En cours de préparation...";
-        else return "Commande prête !";
+        if(state === PREPARATION_IN_PROGRESS) return "En cours de préparation..."
+        else if (state === READY_TO_SERVE) return "Commande prête !"
+        else return 'État de la commande inconnu...'
     }
 
     return (

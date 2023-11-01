@@ -7,10 +7,17 @@ import MenuDisplayingPage from "./pages/MenuDisplayingPage";
 import {WelcomingPage} from "./pages/WelcomingPage";
 import {useEffect, useState} from "react";
 import io from 'socket.io-client';
-import {PREPARATION_IN_PROGRESS, TABLE_AVAILABLE, TABLE_OPEN} from "./components/TableStateConstants";
+import {
+    ANOTHER_SERVICE_READY,
+    PREPARATION_IN_PROGRESS,
+    READY_TO_SERVE,
+    TABLE_AVAILABLE,
+    TABLE_OPEN
+} from "./components/TableStateConstants";
 import {PhoneOutlined} from "@ant-design/icons";
 import {callWaiter} from "./api/waiter";
 import {Backdrop, Paper, Typography} from "@mui/material";
+import {ServedPage} from "./pages/ServedPage";
 
 function App() {
     const TABLE_NUMBER = 1;
@@ -31,9 +38,12 @@ function App() {
             case TABLE_OPEN:
                 navigate('/menu');
                 break;
+            case READY_TO_SERVE:
             case PREPARATION_IN_PROGRESS:
                 navigate('/preparation');
-                // TODO renseigner le temps restant dans la page
+                break;
+            case ANOTHER_SERVICE_READY:
+                navigate('/served');
                 break;
             default:
                 navigate('/');
@@ -59,7 +69,6 @@ function App() {
         });
 
         newSocket.on('TableInfos', (res) => {
-            console.log('Table Infos', res);
             if (parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
         })
 
@@ -86,7 +95,7 @@ function App() {
         paddingInline: 20,
         position: "sticky",
         top: 0,
-        zIndex: 1,
+        zIndex: 2,
     };
 
     const contentStyle = {
@@ -143,6 +152,7 @@ function App() {
                     <Route path="/" element={<WelcomingPage/>}/>
                     <Route path="/preparation" element={<PreparationInProgressPage tableInfos={tableInfos}/>}/>
                     <Route path="/menu" element={<MenuDisplayingPage/>}></Route>
+                    <Route path="/served" element={<ServedPage/>}></Route>
                 </Routes>
             </Content>
         </Layout>

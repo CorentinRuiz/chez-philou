@@ -12,14 +12,17 @@ const io = new Server(httpServer, {
     },
 });
 
-async function notifyFrontOnTablesUpdate() {
+async function notifyFrontOnTablesUpdate(tableNumber) {
     const allTables = await retrieveAllTables();
     io.emit("TableUpdate", allTables);
+
+    if(tableNumber) notifyTableInfos(tableNumber);
 }
 
 async function notifyOrderReadyToDeliver(tableNumber) {
     const allTables = await retrieveAllTables();
     io.emit("OrderReady", {allTables, tableNumber});
+    notifyTableInfos(tableNumber);
 }
 
 async function notifyTableInfos(tableNumber) {
@@ -43,5 +46,5 @@ httpServer.listen(PORT, HOST, () => {
 module.exports = {
     notifyFrontOnTablesUpdate,
     notifyOrderReadyToDeliver,
-    callWaiter
+    callWaiter,
 };

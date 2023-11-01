@@ -2,11 +2,9 @@ import PreparationCommandVideo from '../ressources/preparation_commande.mp4';
 import WaiterComingGif from '../ressources/waiter-coming.gif';
 import {Stack} from "@mui/material";
 import {PaperGradientAnimation} from "../components/PaperGradientAnimation";
-import {useEffect} from "react";
+import {PREPARATION_IN_PROGRESS, READY_TO_SERVE} from "../components/TableStateConstants";
 
 export const PreparationInProgressPage = ({tableInfos}) => {
-    const timeRemaining = 10;
-
     const backgroundVideoStyle = {
         position: 'fixed',
         zIndex: 0
@@ -22,17 +20,14 @@ export const PreparationInProgressPage = ({tableInfos}) => {
         textAlign: 'center'
     }
 
-    useEffect(() => {
-        console.log(tableInfos);
-    }, [tableInfos])
-
     const DisplayCorrectAnimation = () => {
-        if (timeRemaining > 0) return (
+        if(tableInfos === null) return;
+        else if (tableInfos.state === PREPARATION_IN_PROGRESS) return (
             <video autoPlay loop muted id='video' style={{opacity: '0.7', width: '100%', height: '100%'}}>
                 <source src={PreparationCommandVideo} type='video/mp4'/>
             </video>
         )
-        else return (
+        else if (tableInfos.state === READY_TO_SERVE) return (
             <img src={WaiterComingGif} alt="Waiter coming" style={{opacity: '0.7', width: '100%', height: '100%'}}/>
         )
     }
@@ -44,7 +39,7 @@ export const PreparationInProgressPage = ({tableInfos}) => {
             </div>
 
             <Stack style={textInFrontOfVideoStyle} alignItems="center" justifyContent="center">
-                <PaperGradientAnimation timeRemainingInMinutes={timeRemaining}/>
+                <PaperGradientAnimation tableInfos={tableInfos}/>
             </Stack>
         </div>
     );
