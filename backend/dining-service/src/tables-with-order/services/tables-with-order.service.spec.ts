@@ -28,6 +28,7 @@ describe('TablesWithOrderService', () => {
     mockTableOrder = {
       _id: 'table order id',
       tableNumber: 12,
+      linkedTables: [],
       customersCount: 42,
       opened: null,
       lines: [],
@@ -40,6 +41,7 @@ describe('TablesWithOrderService', () => {
       number: 12,
       taken: false,
       blocked: false,
+      linkedTable: null,
     };
 
     mockTakenTable = {

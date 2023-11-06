@@ -20,6 +20,10 @@ export class TableOrder {
   tableNumber: number;
 
   @ApiProperty()
+  @Prop({ default: [], each: { min: 0}})
+  linkedTables: number[];
+
+  @ApiProperty()
   @Prop({ required: true, min: 0 })
   customersCount: number;
 

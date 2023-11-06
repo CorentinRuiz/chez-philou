@@ -66,13 +66,33 @@ export class TablesService {
     return this.tableModel.findByIdAndUpdate(foundItem._id, foundItem, { returnDocument: 'after' });
   }
 
-  async takeTable(tableNumber: number): Promise<Table> {
-    const table: Table = await this.findByNumber(tableNumber);
+  async checkAllTablesAreFree(tables: Table[]): Promise<void> {
+    for(const table of tables) {
+      if (table.taken) {
+        throw new TableAlreadyTakenException(table.number);
+      } else if (table.blocked) {
+        throw new TableBlockedException(table.number);
+      }
+    }
+  }
 
-    if (table.taken) {
-      throw new TableAlreadyTakenException(tableNumber);
-    } else if (table.blocked) {
-      throw new TableBlockedException(tableNumber);
+  async takeTables(mainTable: number, linkedTables: number[]): Promise<Table> {
+    const tablesToTake: Table[] = [];
+
+    tablesToTake.push(await this.findByNumber(mainTable));
+    for (const number of linkedTables) {
+      tablesToTake.push(await this.findByNumber(number));
+    }
+
+    await this.checkAllTablesAreFree(tablesToTake);
+
+    // Get the main table
+    const table = tablesToTake.shift();
+
+    for (const table of tablesToTake) {
+      table.taken = true;
+      table.linkedTable = mainTable;
+      this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
     }
 
     table.taken = true;
@@ -80,15 +100,35 @@ export class TablesService {
     return this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
   }
 
-  async releaseTable(tableNumber: number): Promise<Table> {
-    const table:Table = await this.findByNumber(tableNumber);
+  async releaseTables(mainTable: number, linkedTables: number[]): Promise<Table> {
+    const tablesToRelease: Table[] = [];
 
-    if (!table.taken) {
-      throw new TableAlreadyFreeException(tableNumber);
+    tablesToRelease.push(await this.findByNumber(mainTable));
+    for (const number of linkedTables) {
+      tablesToRelease.push(await this.findByNumber(number));
+    }
+
+    await this.checkAllTablesAreTaken(tablesToRelease);
+
+    // Get the main table
+    const table: Table = tablesToRelease.shift();
+
+    for (const table of tablesToRelease) {
+      table.taken = false;
+      table.linkedTable = null;
+      this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
     }
 
     table.taken = false;
 
     return this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+  }
+
+  async checkAllTablesAreTaken(tables: Table[]): Promise<void> {
+    for (const table of tables) {
+      if (!table.taken) {
+        throw new TableAlreadyFreeException(table.number);
+      }
+    }
   }
 }

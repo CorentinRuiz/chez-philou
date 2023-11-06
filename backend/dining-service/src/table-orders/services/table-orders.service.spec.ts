@@ -51,6 +51,7 @@ describe('TableOrdersService', () => {
       {
         _id: 'table order 1',
         tableNumber: 1,
+        linkedTables: [],
         customersCount: 1,
         opened: null,
         lines: [],
@@ -60,6 +61,7 @@ describe('TableOrdersService', () => {
       {
         _id: 'table order 2',
         tableNumber: 2,
+        linkedTables: [],
         customersCount: 2,
         opened: null,
         lines: [],
@@ -69,6 +71,7 @@ describe('TableOrdersService', () => {
       {
         _id: 'table order 3',
         tableNumber: 3,
+        linkedTables: [],
         customersCount: 3,
         opened: null,
         lines: [],
@@ -80,6 +83,7 @@ describe('TableOrdersService', () => {
     mockTableOrder = {
       _id: 'table order id',
       tableNumber: 12,
+      linkedTables: [],
       customersCount: 42,
       opened: null,
       lines: [],
@@ -147,6 +151,7 @@ describe('TableOrdersService', () => {
     startOrderingDto = {
       tableNumber: 12,
       customersCount: 42,
+      linkedTables: [],
     };
 
     addMenuItemDto = {
@@ -162,18 +167,21 @@ describe('TableOrdersService', () => {
         number: 1,
         taken: false,
         blocked: false,
+        linkedTable: null,
       },
       {
         _id: 'table 2',
         number: 2,
         taken: false,
         blocked: false,
+        linkedTable: null,
       },
       {
         _id: 'table 3',
         number: 3,
         taken: false,
         blocked: false,
+        linkedTable: null,
       },
     ];
 
@@ -182,6 +190,7 @@ describe('TableOrdersService', () => {
       number: 12,
       taken: false,
       blocked: false,
+      linkedTable: null,
     };
 
     mockTakenTable = {
@@ -246,8 +255,8 @@ describe('TableOrdersService', () => {
             findAll: jest.fn().mockResolvedValue(mockTableList),
             findByNumber: jest.fn().mockResolvedValue(mockTable),
             create: jest.fn(),
-            takeTable: jest.fn(),
-            releaseTable: jest.fn(),
+            takeTables: jest.fn(),
+            releaseTables: jest.fn(),
           },
         },
         {
@@ -308,7 +317,7 @@ describe('TableOrdersService', () => {
 
   describe('startOrdering', () => {
     it('should create a new tableOrder', async () => {
-      jest.spyOn(tablesService, 'takeTable').mockImplementationOnce(() =>
+      jest.spyOn(tablesService, 'takeTables').mockImplementationOnce(() =>
         Promise.resolve(mockTakenTable),
       );
       const mockOpened = new Date();
@@ -498,7 +507,7 @@ describe('TableOrdersService', () => {
       jest.spyOn(service, 'findOne').mockImplementationOnce(() =>
         Promise.resolve(mockOpenedTableOrder),
       );
-      jest.spyOn(tablesService, 'releaseTable').mockImplementationOnce(() =>
+      jest.spyOn(tablesService, 'releaseTables').mockImplementationOnce(() =>
         Promise.resolve(mockTable),
       );
       const mockBilled = new Date();

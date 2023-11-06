@@ -153,14 +153,14 @@ describe('TablesService', () => {
     });
   });
 
-  describe('takeTable', () => {
+  describe('takeTables', () => {
     it('should take the table', async () => {
       jest.spyOn(service, 'findByNumber').mockImplementationOnce(() =>
         Promise.resolve(mockTable),
       );
       jest.spyOn(model, 'findByIdAndUpdate').mockResolvedValueOnce(mockTakenTable);
 
-      const takenTable = await service.takeTable(mockTable.number);
+      const takenTable = await service.takeTables(mockTable.number, []);
       expect(takenTable).toEqual(mockTakenTable);
     });
 
@@ -170,20 +170,20 @@ describe('TablesService', () => {
       );
 
       const testTakeTable = async () => {
-        await service.takeTable(mockTakenTable.number);
+        await service.takeTables(mockTakenTable.number, []);
       };
       await expect(testTakeTable).rejects.toThrow(TableAlreadyTakenException);
     });
   });
 
-  describe('releaseTable', () => {
+  describe('releaseTables', () => {
     it('should release the table', async () => {
       jest.spyOn(service, 'findByNumber').mockImplementationOnce(() =>
         Promise.resolve(mockTakenTable),
       );
       jest.spyOn(model, 'findByIdAndUpdate').mockResolvedValueOnce(mockTable);
 
-      const releasedTable = await service.releaseTable(mockTakenTable.number);
+      const releasedTable = await service.releaseTables(mockTakenTable.number, []);
       expect(releasedTable).toEqual(mockTable);
     });
 
@@ -193,7 +193,7 @@ describe('TablesService', () => {
       );
 
       const testReleaseTable = async () => {
-        await service.releaseTable(mockTable.number);
+        await service.releaseTables(mockTable.number, []);
       };
       await expect(testReleaseTable).rejects.toThrow(TableAlreadyFreeException);
     });

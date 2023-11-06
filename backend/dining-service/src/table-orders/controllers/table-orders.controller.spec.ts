@@ -33,6 +33,7 @@ describe('TableOrdersController', () => {
       {
         _id: 'table order 1',
         tableNumber: 1,
+        linkedTables: [],
         customersCount: 1,
         opened: null,
         lines: [],
@@ -42,6 +43,7 @@ describe('TableOrdersController', () => {
       {
         _id: 'table order 2',
         tableNumber: 2,
+        linkedTables: [],
         customersCount: 2,
         opened: null,
         lines: [],
@@ -51,6 +53,7 @@ describe('TableOrdersController', () => {
       {
         _id: 'table order 3',
         tableNumber: 3,
+        linkedTables: [],
         customersCount: 3,
         opened: null,
         lines: [],
@@ -62,6 +65,7 @@ describe('TableOrdersController', () => {
     mockTableOrder = {
       _id: 'table order id',
       tableNumber: 12,
+      linkedTables: [],
       customersCount: 42,
       opened: null,
       lines: [],
@@ -114,6 +118,7 @@ describe('TableOrdersController', () => {
     startOrderingDto = {
       tableNumber: 12,
       customersCount: 42,
+      linkedTables: [],
     };
 
     addMenuItemDto = {

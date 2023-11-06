@@ -22,6 +22,10 @@ export class Table {
   @ApiProperty()
   @Prop({ default: false })
   taken: boolean;
+
+  @ApiProperty()
+  @Prop({ default: null })
+  linkedTable: number;
 }
 
 export const TableSchema = SchemaFactory.createForClass(Table);

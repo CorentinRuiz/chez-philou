@@ -8,4 +8,7 @@ export class StartOrderingDto {
   @IsNotEmpty()
   @IsPositive()
   customersCount: number;
+
+  @IsPositive({ each: true })
+  linkedTables: number[];
 }

@@ -45,10 +45,11 @@ export class TableOrdersService {
   }
 
   async startOrdering(startOrderingDto: StartOrderingDto): Promise<TableOrder> {
-    const table: Table = await this.tablesService.takeTable(startOrderingDto.tableNumber);
+    const table: Table = await this.tablesService.takeTables(startOrderingDto.tableNumber, startOrderingDto.linkedTables);
 
     const tableOrder: TableOrder = new TableOrder();
     tableOrder.tableNumber = table.number;
+    tableOrder.linkedTables = startOrderingDto.linkedTables;
     tableOrder.customersCount = startOrderingDto.customersCount;
     tableOrder.opened = new Date();
 
@@ -147,7 +148,7 @@ export class TableOrdersService {
     // TODO: Send payment for the table order
 
     // TODO: Move next line when billing is managed
-    await this.tablesService.releaseTable(tableOrder.tableNumber);
+    await this.tablesService.releaseTables(tableOrder.tableNumber, tableOrder.linkedTables);
 
     return this.tableOrderModel.findByIdAndUpdate(tableOrder._id, tableOrder, { returnDocument: 'after' });
   }

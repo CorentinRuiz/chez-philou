@@ -89,7 +89,7 @@ router.post("/open-table", async (req, res) => {
     logger.info("POST /orders/open-table");
     logger.info("Front-end is asking to open a table...");
 
-    if (!req.body.tableNumber || !req.body.customersCount) {
+    if (!req.body.tableNumber || !req.body.customersCount || !req.body.linkedTables) {
         logger.error("Wrong format of request!");
         res.status(400).send("Wrong format of request!");
         return;
@@ -97,7 +97,8 @@ router.post("/open-table", async (req, res) => {
     try {
         const result = await postOpenTable(
             req.body.tableNumber,
-            req.body.customersCount
+            req.body.customersCount,
+            req.body.linkedTables
         );
 
         logger.info("Table opened.");

@@ -31,6 +31,10 @@ export class TableWithOrderDto {
   // could also be complemented with more information on the order itself, here as a MVP, we only add the id
   // forcing for a callback to the API to get the information
 
+  @ApiProperty()
+  @IsOptional()
+  linkedTable: number;
+
   static tableWithOrderDtoFactory(table: Table, tableOrder: TableOrder): TableWithOrderDto {
     const tableWithOrderDto: TableWithOrderDto = new TableWithOrderDto();
     tableWithOrderDto._id = table._id;
@@ -38,6 +42,7 @@ export class TableWithOrderDto {
     tableWithOrderDto.taken = table.taken;
     tableWithOrderDto.blocked = table.blocked;
     tableWithOrderDto.tableOrderId = tableOrder?._id || null;
+    tableWithOrderDto.linkedTable = table.linkedTable || null;
 
     return tableWithOrderDto;
   }
