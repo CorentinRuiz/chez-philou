@@ -1,12 +1,10 @@
 import React from "react";
-import { Grid, Paper, TextField, Box } from "@mui/material";
+import { Grid, Paper, Box } from "@mui/material";
 import { Typography } from "antd";
 
 const { Title } = Typography;
 
 const DishDisplayTable = ({
-  menuItems,
-  setMenuItemsFunc,
   currDisplayingItems,
 }) => {
   return (

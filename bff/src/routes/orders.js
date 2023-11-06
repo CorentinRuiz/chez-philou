@@ -13,7 +13,7 @@ const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../c
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 const logger = require("../logger");
-const {notifyFrontOnTablesUpdate} = require("../socket");
+const {notifyFrontOnTablesUpdate, notifyBasketsChange} = require("../socket");
 const {notifyOrderReadyToDeliver} = require("../socket");
 
 router.get("/", async (req, res) => {
@@ -28,6 +28,14 @@ router.get("/", async (req, res) => {
     } catch (error) {
         handleError(error, res);
     }
+});
+
+router.post('/baskets', async (req, res) => {
+    logger.info("GET /orders/preparations-status/baskets");
+    const tableNumber = req.body.tableNumber;
+    const baskets = req.body.baskets;
+    res.sendStatus(200);
+    notifyBasketsChange(tableNumber, baskets);
 });
 
 router.post('/ready-to-deliver/', async (req, res) => {

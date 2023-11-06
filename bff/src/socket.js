@@ -39,6 +39,11 @@ io.on('connection', async (socket) => {
    if(tableNumberConnected) await notifyTableInfos(parseInt(tableNumberConnected));
 });
 
+async function notifyBasketsChange(tableNumber,baskets) {
+    console.log("notifyBasketsChange",tableNumber,baskets);
+    io.emit("BasketChange", {tableNumber,baskets});
+}
+
 httpServer.listen(PORT, HOST, () => {
     console.log("WebSocket running on port:", PORT);
 });
@@ -47,4 +52,5 @@ module.exports = {
     notifyFrontOnTablesUpdate,
     notifyOrderReadyToDeliver,
     callWaiter,
+    notifyBasketsChange
 };
