@@ -42,7 +42,7 @@ export class TableWithOrderDto {
     tableWithOrderDto.taken = table.taken;
     tableWithOrderDto.blocked = table.blocked;
     tableWithOrderDto.tableOrderId = tableOrder?._id || null;
-    tableWithOrderDto.linkedTable = table.linkedTable || null;
+    tableWithOrderDto.linkedTable = table.linkedTable;
 
     return tableWithOrderDto;
   }

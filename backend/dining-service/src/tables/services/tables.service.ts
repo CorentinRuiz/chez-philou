@@ -76,10 +76,10 @@ export class TablesService {
     }
   }
 
-  async takeTables(mainTable: number, linkedTables: number[]): Promise<Table> {
+  async takeTables(mainTableId: number, linkedTables: number[]): Promise<Table> {
     const tablesToTake: Table[] = [];
 
-    tablesToTake.push(await this.findByNumber(mainTable));
+    tablesToTake.push(await this.findByNumber(mainTableId));
     for (const number of linkedTables) {
       tablesToTake.push(await this.findByNumber(number));
     }
@@ -87,23 +87,24 @@ export class TablesService {
     await this.checkAllTablesAreFree(tablesToTake);
 
     // Get the main table
-    const table = tablesToTake.shift();
+    const mainTable: Table = tablesToTake.shift();
 
     for (const table of tablesToTake) {
       table.taken = true;
-      table.linkedTable = mainTable;
-      this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+      table.linkedTable = mainTableId;
+      console.log(table);
+      await this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
     }
 
-    table.taken = true;
+    mainTable.taken = true;
 
-    return this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, { returnDocument: 'after' });
   }
 
-  async releaseTables(mainTable: number, linkedTables: number[]): Promise<Table> {
+  async releaseTables(mainTableId: number, linkedTables: number[]): Promise<Table> {
     const tablesToRelease: Table[] = [];
 
-    tablesToRelease.push(await this.findByNumber(mainTable));
+    tablesToRelease.push(await this.findByNumber(mainTableId));
     for (const number of linkedTables) {
       tablesToRelease.push(await this.findByNumber(number));
     }
@@ -111,17 +112,18 @@ export class TablesService {
     await this.checkAllTablesAreTaken(tablesToRelease);
 
     // Get the main table
-    const table: Table = tablesToRelease.shift();
+    const mainTable: Table = tablesToRelease.shift();
 
     for (const table of tablesToRelease) {
       table.taken = false;
       table.linkedTable = null;
-      this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+      console.log(table);
+      await this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
     }
 
-    table.taken = false;
+    mainTable.taken = false;
 
-    return this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, { returnDocument: 'after' });
   }
 
   async checkAllTablesAreTaken(tables: Table[]): Promise<void> {
