@@ -1,7 +1,8 @@
-import {Paper, Stack, Typography} from "@mui/material";
+import {Chip, Grid, Paper, Stack, Typography} from "@mui/material";
 import {Button, Modal, Table} from "antd";
 import {useNavigate} from "react-router-dom";
-import {EuroCircleOutlined} from "@ant-design/icons";
+import {EuroCircleOutlined, BookOutlined, EuroOutlined} from "@ant-design/icons";
+import {getPastOrders} from "../api/orders";
 
 export const ServedPage = ({tableInfos, callWaiter}) => {
     const navigate = useNavigate();
@@ -23,36 +24,70 @@ export const ServedPage = ({tableInfos, callWaiter}) => {
     }
 
     const billColumns = [
-        { title: "Nom", dataIndex: "name", key: "name" },
-        { title: "Quantité", dataIndex: "quantity", key: "quantity", render: (quantity) => `x${quantity}` },
-        { title: "Prix", dataIndex: "price", key: "price", render: (price) => `${price}€` },
+        {title: "Nom", dataIndex: "name", key: "name"},
+        {title: "Catégorie", dataIndex: "category", key: "category", render: (category) => (<Chip style={{backgroundColor: category.color}} label={category.name}/>)},
+        {title: "Quantité", dataIndex: "quantity", key: "quantity", render: (quantity) => `x${quantity}`},
+        {title: "Prix", dataIndex: "price", key: "price"},
     ]
 
-    const displayBillContent = (lines) => {
-        const allItems = lines
-            .map(line => ({quantity: line.howMany, name: line.item.shortName, id: line.item._id, price: '?', key: line.item._id}));
+    const displayBillContent = async (tableOrderId) => {
+        const pastOrders = (await getPastOrders(tableOrderId)).data;
+
+        const allItems = [];
+        pastOrders.forEach(type => {
+            type.preparedItems.forEach(item => allItems.push({
+                quantity: item.quantity,
+                category: {name: type.name, color: type.color},
+                name: item.shortName,
+                unitaryPrice: item.price,
+                key: item._id,
+            }))
+        });
+
+        const getPriceDisplayOfLine = (item) => {
+            return (
+                <Stack spacing={0} direction="column">
+                    <Typography variant="body">{item.quantity * item.unitaryPrice}€</Typography>
+                    {item.quantity > 1 && (
+                        <Typography variant="caption">{item.unitaryPrice}€ x{item.quantity}</Typography>
+                    )}
+                </Stack>
+            )
+        }
 
         let itemsGrouped = [];
         allItems.forEach(itemA => {
             const itemG = itemsGrouped.find((itemG) => itemG.name === itemA.name);
-            if (itemG) itemG.quantity += itemA.quantity;
-            else itemsGrouped.push(itemA);
-        })
+            if (itemG) {
+                itemG.quantity += itemA.quantity;
+                itemG.price = getPriceDisplayOfLine(itemG)
+            } else itemsGrouped.push({
+                ...itemA,
+                price: getPriceDisplayOfLine(itemA)
+            });
+        });
 
-        return <Table columns={billColumns} dataSource={itemsGrouped} pagination={false}/>
+        return <Table columns={billColumns} dataSource={itemsGrouped} pagination={false} footer={() => (
+            <Grid direction="row" container>
+                <Grid item xs={6} textAlign="left"><Typography variant="h6"><b>Total :</b></Typography></Grid>
+                <Grid item xs={6} textAlign="right"><Typography
+                    variant="h6"><b>{itemsGrouped.reduce((acc, item) => acc + item.unitaryPrice * item.quantity, 0)}€</b></Typography></Grid>
+            </Grid>
+        )}/>
     }
 
-    const displayBill = () => {
-        const lines = tableInfos.tableOrderInfos.lines;
+    const displayBill = async () => {
+        const tableOrderId = tableInfos.tableOrderInfos._id;
         const tableNumber = tableInfos.tableNumber;
 
         Modal.confirm({
             title: "Addition",
-            content: displayBillContent(lines),
+            content: await displayBillContent(tableOrderId),
             okText: "Appeler le serveur",
             cancelText: "Fermer",
             onOk: () => callWaiter(tableNumber),
             icon: <EuroCircleOutlined/>,
+            width: '80%'
         });
     }
 
@@ -62,11 +97,10 @@ export const ServedPage = ({tableInfos, callWaiter}) => {
                 <Stack spacing={5}>
                     <Typography variant="h2">Bon appétit !</Typography>
                     <Stack spacing={5} alignItems="center" justifyContent="center" direction="row">
-                        <Button type="primary" shape="round" size="large"
+                        <Button type="primary" shape="round" size="large" icon={<BookOutlined />}
                                 onClick={() => navigate('/menu', {state: {from: '/served'}})}>Afficher le menu</Button>
-                        <Button type="default" shape="round" size="large" onClick={displayBill}>Afficher
-                            l'addition</Button>
-                        {/*TODO permettre d'afficher l'addition*/}
+                        <Button type="default" shape="round" size="large" onClick={displayBill} icon={<EuroOutlined />}>
+                            Afficher l'addition</Button>
                     </Stack>
                 </Stack>
             </Paper>
