@@ -20,7 +20,7 @@ export const preparationStatus = async (tableOrderId) => {
 };
 
 export const createNewOrder = async (tableNumber, customersCount) => {
-  const body = { tableNumber: tableNumber, customersCount: customersCount };
+  const body = { tableNumber: tableNumber, customersCount: customersCount, linkedTables: 1 };
   return await axiosInstance.post(`${API_BASE_ROUTE}/open-table`, body);
 };
 

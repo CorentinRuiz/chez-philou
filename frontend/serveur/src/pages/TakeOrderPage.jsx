@@ -338,7 +338,6 @@ const TakeOrderPage = () => {
       ) : (
         ""
       )}
-      ;
       <BottomSheet
         onSpringStart={onBottomSheetDrag}
         ref={sheetRef}

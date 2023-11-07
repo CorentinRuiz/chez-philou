@@ -1,16 +1,21 @@
-import React,{useEffect} from "react";
+import React, { useEffect } from "react";
 import EmptyBasketDisplay from "./EmptyBasketDisplay";
 import OrderItem from "./OrderItem";
-import {getColorDimmed} from "../../utils";
-
+import { getColorDimmed } from "../../utils";
+import { Collapse } from "antd";
 
 const BottomSheetContent = ({
-  open,
+  startCommand,
   openBottomSheet,
   oldService,
-  closeBottomSheet,
+  totalOrderPrice,
   basket,
 }) => {
+  useEffect(() => {
+    if (startCommand && basket.length > 0) {
+      openBottomSheet();
+    }
+  }, [startCommand, basket]);
 
   const getGroupedItemByService = () => {
     return Array.from(oldService).map((item) => ({
@@ -25,14 +30,15 @@ const BottomSheetContent = ({
 
   return (
     <>
-      {/* {oldService.length > 0 ? (
+      {oldService.length > 0 ? (
         <Collapse bordered={false} items={getGroupedItemByService()} />
       ) : (
         ""
-      )} */}
+      )}
       {basket.length === 0 ? (
         <EmptyBasketDisplay
-          closeBottomSheet={closeBottomSheet}
+          totalOrderPrice={totalOrderPrice}
+          orderState={oldService.length}
         />
       ) : (
         basket.map((item) => (

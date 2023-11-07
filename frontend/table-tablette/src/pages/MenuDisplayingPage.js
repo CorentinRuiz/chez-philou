@@ -8,14 +8,16 @@ import { getMenus } from "../api/menus";
 import { message } from "antd";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import io from "socket.io-client";
+import { getPastOrders } from "../api/orders";
 
-const MenuDisplayingPage = () => {
+const MenuDisplayingPage = ({tableInfos}) => {
   const [messageApi, messageContextHolder] = message.useMessage();
   const [displayGrid, setDisplayGrid] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
   const [lastButtonClicked, setLastButtonClicked] = useState("");
   const [currDisplayingItems, setCurrDisplayingItems] = useState([]);
-  const [open, setOpen] = useState(true);
+  const [startCommand, setStartCommand] = useState(false);
+  const [oldService, setOldService] = useState([]);
   const sheetRef = React.useRef();
   const [displayContentBottomSheet, setDisplayContentBottomSheet] =
     useState(false);
@@ -29,7 +31,6 @@ const MenuDisplayingPage = () => {
   const onBottomSheetDrag = async () => {
     requestAnimationFrame(() => {
       const height = sheetRef.current.height;
-      console.log(height);
       // Bottom Sheet Open
       if (height > BOTTOM_SHEET_VALUE_CLOSED) onBottomSheetOpen();
       // Bottom Sheet Initial or Open
@@ -39,13 +40,16 @@ const MenuDisplayingPage = () => {
     });
   };
 
-  const openBottomSheet = () => {
-    console.log("on monte");
-    sheetRef.current.snapTo(({ snapPoints }) => Math.max(...snapPoints));
+  const orderTotalPrice = () => {
+    return oldService
+      .flatMap((preparation) =>
+        preparation.preparedItems.map((item) => item.quantity * item.price)
+      )
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
   };
 
-  const closeBottomSheet = () => {
-    sheetRef.current.snapTo({ initialSheetHeight, fullSheetHeight });
+  const openBottomSheet = () => {
+    sheetRef.current.snapTo(({ snapPoints }) => Math.max(...snapPoints));
   };
 
   const onBottomSheetOpen = () => {
@@ -103,8 +107,15 @@ const MenuDisplayingPage = () => {
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
   };
 
+  const getOldService = (id) => {
+    getPastOrders(id).then((res) => {
+      setOldService(res.data);
+    });
+  };
+
   useEffect(() => {
     getMenusItems();
+    getOldService(tableInfos.tableOrderInfos._id);
   }, []);
 
   useEffect(() => {
@@ -121,8 +132,7 @@ const MenuDisplayingPage = () => {
     });
 
     newSocket.on("BasketChange", (res) => {
-      console.log(res);
-      setOpen(true);
+      setStartCommand(true);
       setBasket(res.baskets);
     });
   }, []);
@@ -146,7 +156,7 @@ const MenuDisplayingPage = () => {
       <BottomSheet
         onSpringStart={onBottomSheetDrag}
         ref={sheetRef}
-        open={open}
+        open={true}
         header={
           <BottomSheetHeader
             nbItems={basketTotalItems()}
@@ -157,11 +167,13 @@ const MenuDisplayingPage = () => {
         snapPoints={({}) => [initialSheetHeight, fullSheetHeight]}
       >
         <BottomSheetContent
-          open={open}
+          startCommand={startCommand}
           openBottomSheet={openBottomSheet}
-          closeBottomSheet={closeBottomSheet}
           basket={basket}
+          totalOrderPrice={orderTotalPrice}
+          oldService={oldService}
         />
+
       </BottomSheet>
       {messageContextHolder}
     </div>

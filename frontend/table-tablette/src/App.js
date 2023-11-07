@@ -151,7 +151,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<WelcomingPage/>}/>
                     <Route path="/preparation" element={<PreparationInProgressPage tableInfos={tableInfos}/>}/>
-                    <Route path="/menu" element={<MenuDisplayingPage/>}></Route>
+                    <Route path="/menu" element={<MenuDisplayingPage tableInfos={tableInfos}/>}></Route>
                     <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter}/>}></Route>
                 </Routes>
             </Content>

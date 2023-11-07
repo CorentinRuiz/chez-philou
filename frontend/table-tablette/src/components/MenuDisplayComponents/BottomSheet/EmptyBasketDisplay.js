@@ -1,9 +1,8 @@
 import React from "react";
 import { Stack } from "@mui/material";
-import { Button, Alert, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Alert, Typography } from "antd";
 
-const EmptyBasketDisplay = ({ closeBottomSheet }) => {
+const EmptyBasketDisplay = ({ totalOrderPrice, orderState }) => {
   return (
     <div>
       <Stack
@@ -16,8 +15,11 @@ const EmptyBasketDisplay = ({ closeBottomSheet }) => {
           message="The order is empty"
           type="info"
           showIcon
-          description="There are no items in the order. You can add more using the selection table above."
+          description="There are no items in the order."
         />
+        {orderState > 0 ? (
+          <Typography>Total Order {totalOrderPrice()} € </Typography>
+        ) : null}
       </Stack>
     </div>
   );
