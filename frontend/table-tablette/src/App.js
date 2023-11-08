@@ -1,4 +1,4 @@
-import {Button, Layout, notification} from "antd";
+import {Button, Layout, notification, Spin} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {Routes, Route, useNavigate} from "react-router-dom";
 import {TopAppBar} from "./components/TopAppBar";
@@ -20,7 +20,7 @@ import {Backdrop, Paper, Typography} from "@mui/material";
 import {ServedPage} from "./pages/ServedPage";
 
 function App() {
-    const TABLE_NUMBER = 1;
+    const TABLE_NUMBER = 2;
     const [notificationApi, notificationContextHolder] = notification.useNotification();
     const [tableInfos, setTableInfos] = useState(null);
     const [callingWaiter, setCallingWaiter] = useState(false);
@@ -70,6 +70,15 @@ function App() {
 
         newSocket.on('TableInfos', (res) => {
             if (parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
+        })
+
+        newSocket.on('OpenRecapBasket', (res) => {
+            const pathname = window.location.pathname;
+            const tableNumber = res.tableNumber;
+            const basket = res.basket;
+            if((parseInt(tableNumber) === TABLE_NUMBER) && pathname !== "/menu") {
+                navigate('/menu', {state: {basket}});
+            }
         })
 
         newSocket.on('connect_error', () => {
@@ -134,7 +143,7 @@ function App() {
         <Layout style={layoutStyle}>
             {notificationContextHolder}
 
-            <Backdrop open={outOfService} style={{zIndex: 2}}>
+            <Backdrop open={outOfService} style={{zIndex: 1000000}}>
                 <Paper elevation={0} style={backdropPaperStyle} id="paper-backdrop-error">
                         <Typography textAlign="center" variant="h1">Tablette hors service</Typography>
                 </Paper>
@@ -145,7 +154,7 @@ function App() {
                         icon={<PhoneOutlined/>} onClick={onCallWaiter} loading={callingWaiter}
                         size="middle">Appeler le serveur</Button>
 
-                <TopAppBar/>
+                <TopAppBar tableNumber={tableInfos?.tableNumber ?? <Spin/>}/>
             </Header>
             <Content style={contentStyle}>
                 <Routes>

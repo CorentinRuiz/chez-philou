@@ -54,6 +54,7 @@ const ChooseTablePage = () => {
                 message: 'Kitchen notification',
                 description: <p>The order table n°<b>{tableNumber}</b> is ready</p>
             })
+            Modal.destroyAll();
         })
 
         newSocket.on('CallWaiter', (tableNumber) => {

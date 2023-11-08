@@ -13,6 +13,13 @@ export const addOrdersInBasket = async (baskets, tableNumber) => {
   });
 };
 
+export const openRecapBasket = async (tableNumber, basket) => {
+  return await axiosInstance.post(`${API_BASE_ROUTE}/open-recap-basket`, {
+    tableNumber: tableNumber,
+    basket: basket
+  });
+}
+
 export const preparationStatus = async (tableOrderId) => {
   return await axiosInstance.get(
     `${API_BASE_ROUTE}/preparations-status/${tableOrderId}`

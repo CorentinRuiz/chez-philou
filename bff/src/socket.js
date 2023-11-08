@@ -34,15 +34,18 @@ async function callWaiter(tableNumber) {
     io.emit("CallWaiter", tableNumber);
 }
 
+async function notifyBasketsChange(tableNumber,baskets) {
+    io.emit("BasketChange", {tableNumber,baskets});
+}
+
+async function openRecapBasketOnTablette(tableNumber, basket) {
+    io.emit("OpenRecapBasket", {tableNumber: tableNumber, basket: basket})
+}
+
 io.on('connection', async (socket) => {
     const tableNumberConnected = socket.handshake.query.tableNumber;
    if(tableNumberConnected) await notifyTableInfos(parseInt(tableNumberConnected));
 });
-
-async function notifyBasketsChange(tableNumber,baskets) {
-    console.log("notifyBasketsChange",tableNumber,baskets);
-    io.emit("BasketChange", {tableNumber,baskets});
-}
 
 httpServer.listen(PORT, HOST, () => {
     console.log("WebSocket running on port:", PORT);
@@ -52,5 +55,6 @@ module.exports = {
     notifyFrontOnTablesUpdate,
     notifyOrderReadyToDeliver,
     callWaiter,
-    notifyBasketsChange
+    notifyBasketsChange,
+    openRecapBasketOnTablette
 };
