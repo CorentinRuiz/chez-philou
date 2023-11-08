@@ -3,8 +3,9 @@ import {Button, Modal, Table} from "antd";
 import {useNavigate} from "react-router-dom";
 import {EuroCircleOutlined, BookOutlined, EuroOutlined} from "@ant-design/icons";
 import {getPastOrders} from "../api/orders";
+import {useEffect} from "react";
 
-export const ServedPage = ({tableInfos, callWaiter}) => {
+export const ServedPage = ({tableInfos, callWaiter, openTheBill}) => {
     const navigate = useNavigate();
 
     const messageDisplayStyle = {
@@ -22,6 +23,10 @@ export const ServedPage = ({tableInfos, callWaiter}) => {
         height: '100%',
         textAlign: 'center'
     }
+
+    useEffect(() => {
+        if(openTheBill) displayBill();
+    }, [openTheBill]);
 
     const billColumns = [
         {title: "Nom", dataIndex: "name", key: "name"},

@@ -67,6 +67,10 @@ export const createBillForTheTable = async (tableOrderId) => {
   return await axiosInstance.post(`${API_BASE_ROUTE}/bill/${tableOrderId}`);
 };
 
+export const openBillOnTablette = async (tableNumber) => {
+  return await axiosInstance.post(`${API_BASE_ROUTE}/open-bill`, {tableNumber});
+}
+
 export const getCustomersCountOnTableOrder = async (tableOrderId) => {
   return (await axiosInstance.get(`${API_BASE_ROUTE}/${tableOrderId}`)).data
     .customersCount;

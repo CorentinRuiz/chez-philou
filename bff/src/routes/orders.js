@@ -13,7 +13,7 @@ const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../c
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 const logger = require("../logger");
-const {notifyFrontOnTablesUpdate, notifyBasketsChange, openRecapBasketOnTablette} = require("../socket");
+const {notifyFrontOnTablesUpdate, notifyBasketsChange, openRecapBasketOnTablette, openBillOnTablette} = require("../socket");
 const {notifyOrderReadyToDeliver} = require("../socket");
 
 router.get("/", async (req, res) => {
@@ -205,6 +205,11 @@ router.get("/getPastOrders/:tableOrderId", async (req, res) => {
     logger.info("Sending past orders of table order " + req.params.tableOrderId + " to front-end...");
     res.status(200).send(prepareItems);
 });
+
+router.post('/open-bill', async (req, res) => {
+    const tableNumber = req.body.tableNumber;
+    openBillOnTablette(tableNumber).then(() => res.status(200).send());
+})
 
 router.post("/bill/:tableOrderId", async (req, res) => {
     logger.info("POST /orders/bill/:tableOrderId");

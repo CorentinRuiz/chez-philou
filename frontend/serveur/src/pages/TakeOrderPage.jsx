@@ -13,7 +13,7 @@ import {
     addOrdersInBasket,
     createBillForTheTable,
     getCustomersCountOnTableOrder,
-    getPastOrders,
+    getPastOrders, openBillOnTablette,
     sendOrderToKitchen,
 } from "../api/tablesOrders";
 import {Collapse, message} from "antd";
@@ -143,6 +143,9 @@ const TakeOrderPage = () => {
     };
 
     const onCreateBill = () => {
+        openBillOnTablette(tableId).then(() => {
+            messageApi.info("Bill opened on tablette");
+        });
         billModal(
             getGroupedItemByService(),
             (tableOrderId) => {

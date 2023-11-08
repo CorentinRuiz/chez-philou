@@ -42,6 +42,10 @@ async function openRecapBasketOnTablette(tableNumber, basket) {
     io.emit("OpenRecapBasket", {tableNumber: tableNumber, basket: basket})
 }
 
+async function openBillOnTablette(tableNumber) {
+    io.emit("OpenBill", {tableNumber});
+}
+
 io.on('connection', async (socket) => {
     const tableNumberConnected = socket.handshake.query.tableNumber;
    if(tableNumberConnected) await notifyTableInfos(parseInt(tableNumberConnected));
@@ -56,5 +60,6 @@ module.exports = {
     notifyOrderReadyToDeliver,
     callWaiter,
     notifyBasketsChange,
-    openRecapBasketOnTablette
+    openRecapBasketOnTablette,
+    openBillOnTablette
 };

@@ -25,6 +25,7 @@ function App() {
     const [tableInfos, setTableInfos] = useState(null);
     const [callingWaiter, setCallingWaiter] = useState(false);
     const [outOfService, setOutOfService] = useState(false);
+    const [openBillDialog, setOpenBillDialog] = useState(false);
 
     const navigate = useNavigate();
 
@@ -70,7 +71,7 @@ function App() {
 
         newSocket.on('TableInfos', (res) => {
             if (parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
-        })
+        });
 
         newSocket.on('OpenRecapBasket', (res) => {
             const pathname = window.location.pathname;
@@ -79,7 +80,12 @@ function App() {
             if((parseInt(tableNumber) === TABLE_NUMBER) && pathname !== "/menu") {
                 navigate('/menu', {state: {basket}});
             }
-        })
+        });
+
+        newSocket.on('OpenBill', (res) => {
+            const tableNumber = res.tableNumber;
+            if(parseInt(tableNumber) === TABLE_NUMBER) setOpenBillDialog(true);
+        });
 
         newSocket.on('connect_error', () => {
             if (wsError) return;
@@ -161,7 +167,7 @@ function App() {
                     <Route path="/" element={<WelcomingPage/>}/>
                     <Route path="/preparation" element={<PreparationInProgressPage tableInfos={tableInfos}/>}/>
                     <Route path="/menu" element={<MenuDisplayingPage tableInfos={tableInfos}/>}></Route>
-                    <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter}/>}></Route>
+                    <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter} openTheBill={openBillDialog}/>}></Route>
                 </Routes>
             </Content>
         </Layout>
