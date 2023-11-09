@@ -2,13 +2,22 @@ const {axiosInstance} = require("./api");
 
 const API_BASE_ROUTE = "/dining/tableOrders";
 
-const postOpenTable = async (tableId, nbCustomer) => {
+const postOpenTable = async (tableId, nbCustomer, linkedTables) => {
     return (await axiosInstance.post(`${API_BASE_ROUTE}/`,
         {
             "tableNumber": tableId,
-            "customersCount": nbCustomer
+            "customersCount": nbCustomer,
+            "linkedTables": linkedTables
         }));
 };
+
+const addLinkedTableToStartedOrder = async (howManyMorePeople, tableNumberToLink, tableOrderId) => {
+    return await axiosInstance.post(`${API_BASE_ROUTE}/update`, {
+        howManyMorePeople: howManyMorePeople,
+        orderId: tableOrderId,
+        tableNumberToAdd: tableNumberToLink
+    });
+}
 
 const getAllOrders = async () => {
     return await axiosInstance.get(API_BASE_ROUTE);
@@ -36,5 +45,6 @@ module.exports = {
     getTableOrderById,
     postOrderItem,
     postSendPrepareOrder,
-    postBill
+    postBill,
+    addLinkedTableToStartedOrder
 }

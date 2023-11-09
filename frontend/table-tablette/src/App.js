@@ -1,4 +1,4 @@
-import {Button, Layout, notification, Spin} from "antd";
+import {Button, Layout, Modal, notification} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {Routes, Route, useNavigate} from "react-router-dom";
 import {TopAppBar} from "./components/TopAppBar";
@@ -11,16 +11,18 @@ import {
     ANOTHER_SERVICE_READY,
     PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
-    TABLE_AVAILABLE,
+    TABLE_AVAILABLE, TABLE_BLOCKED,
     TABLE_OPEN
 } from "./components/TableStateConstants";
 import {PhoneOutlined} from "@ant-design/icons";
 import {callWaiter} from "./api/waiter";
 import {Backdrop, Paper, Typography} from "@mui/material";
 import {ServedPage} from "./pages/ServedPage";
+import {TableBlockedPage} from "./pages/TableBlockedPage";
 
 function App() {
-    const TABLE_NUMBER = 2;
+    const TABLE_NUMBER = parseInt(localStorage.getItem('tableNumber'));
+    const [linkedTable, setLinkedTable] = useState(null);
     const [notificationApi, notificationContextHolder] = notification.useNotification();
     const [tableInfos, setTableInfos] = useState(null);
     const [callingWaiter, setCallingWaiter] = useState(false);
@@ -32,8 +34,12 @@ function App() {
     useEffect(() => {
         if (tableInfos === null) return;
 
+        Modal.destroyAll();
+
         switch (tableInfos.state) {
             case TABLE_AVAILABLE:
+                setLinkedTable(null);
+                setOpenBillDialog(false);
                 navigate('/');
                 break;
             case TABLE_OPEN:
@@ -42,6 +48,9 @@ function App() {
             case READY_TO_SERVE:
             case PREPARATION_IN_PROGRESS:
                 navigate('/preparation');
+                break;
+            case TABLE_BLOCKED:
+                navigate('/blocked');
                 break;
             case ANOTHER_SERVICE_READY:
                 navigate('/served');
@@ -54,6 +63,8 @@ function App() {
     // WebSocket connection
     useEffect(() => {
         let wsError = false;
+
+        let numOfTheLinkedTable = null;
 
         const newSocket = io(`http://${process.env.REACT_APP_WEBSOCKET_URL}`, {query: {tableNumber: TABLE_NUMBER}});
 
@@ -70,21 +81,47 @@ function App() {
         });
 
         newSocket.on('TableInfos', (res) => {
-            if (parseInt(res.tableNumber) === TABLE_NUMBER) setTableInfos(res);
+            const tableNumberReceive = parseInt(res.tableNumber);
+            if (tableNumberReceive === TABLE_NUMBER || tableNumberReceive === numOfTheLinkedTable) {
+                const linkedTable = res.linkedTableNumber;
+                if (linkedTable) {
+                    numOfTheLinkedTable = linkedTable;
+                    setLinkedTable(linkedTable);
+                    setTableInfos(res.linkedTableState);
+                } else setTableInfos(res);
+            }
         });
+
+        newSocket.on('LinkTable', (res) => {
+            const tableSource = res.tableSource;
+            const allLinkedTable = res.allLinkedTable;
+            if (allLinkedTable.includes(TABLE_NUMBER)) {
+                setLinkedTable(tableSource);
+                numOfTheLinkedTable = tableSource;
+            }
+        });
+
+        newSocket.on('UnlinkTable', (res) => {
+            console.log(res);
+            if (res.tableSourceToUnlink === numOfTheLinkedTable) {
+                setLinkedTable(null);
+                numOfTheLinkedTable = null;
+                window.location.reload();
+            }
+        })
 
         newSocket.on('OpenRecapBasket', (res) => {
             const pathname = window.location.pathname;
-            const tableNumber = res.tableNumber;
+            const tableNumber = parseInt(res.tableNumber);
             const basket = res.basket;
-            if((parseInt(tableNumber) === TABLE_NUMBER) && pathname !== "/menu") {
+            if ((tableNumber === TABLE_NUMBER || tableNumber === numOfTheLinkedTable) && pathname !== "/menu") {
                 navigate('/menu', {state: {basket}});
             }
         });
 
         newSocket.on('OpenBill', (res) => {
-            const tableNumber = res.tableNumber;
-            if(parseInt(tableNumber) === TABLE_NUMBER) setOpenBillDialog(true);
+            const tableNumber = parseInt(res.tableNumber);
+            if (tableNumber === TABLE_NUMBER || tableNumber === numOfTheLinkedTable) setOpenBillDialog(true);
         });
 
         newSocket.on('connect_error', () => {
@@ -151,7 +188,7 @@ function App() {
 
             <Backdrop open={outOfService} style={{zIndex: 1000000}}>
                 <Paper elevation={0} style={backdropPaperStyle} id="paper-backdrop-error">
-                        <Typography textAlign="center" variant="h1">Tablette hors service</Typography>
+                    <Typography textAlign="center" variant="h1">Tablette hors service</Typography>
                 </Paper>
             </Backdrop>
 
@@ -160,14 +197,16 @@ function App() {
                         icon={<PhoneOutlined/>} onClick={onCallWaiter} loading={callingWaiter}
                         size="middle">Appeler le serveur</Button>
 
-                <TopAppBar tableNumber={tableInfos?.tableNumber ?? <Spin/>}/>
+                <TopAppBar linkedTable={linkedTable} tableNumber={TABLE_NUMBER}/>
             </Header>
             <Content style={contentStyle}>
                 <Routes>
                     <Route path="/" element={<WelcomingPage/>}/>
                     <Route path="/preparation" element={<PreparationInProgressPage tableInfos={tableInfos}/>}/>
                     <Route path="/menu" element={<MenuDisplayingPage tableInfos={tableInfos}/>}></Route>
-                    <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter} openTheBill={openBillDialog}/>}></Route>
+                    <Route path="/blocked" element={<TableBlockedPage/>}></Route>
+                    <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter}
+                                                               openTheBill={openBillDialog}/>}></Route>
                 </Routes>
             </Content>
         </Layout>

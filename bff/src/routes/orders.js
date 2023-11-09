@@ -5,7 +5,7 @@ const {
     postOrderItem,
     postSendPrepareOrder,
     postBill,
-    getTableOrderById
+    getTableOrderById, addLinkedTableToStartedOrder
 } = require("../api/orders");
 const {handleError} = require("./utils");
 const {getMenus} = require("../api/menus");
@@ -13,7 +13,9 @@ const {MAIN_COLOR, STARTER_COLOR, BEVERAGE_COLOR, DESSERT_COLOR} = require("../c
 const {getPreparationStatusFromId} = require("../api/preparations");
 const router = express.Router();
 const logger = require("../logger");
-const {notifyFrontOnTablesUpdate, notifyBasketsChange, openRecapBasketOnTablette, openBillOnTablette} = require("../socket");
+const {notifyFrontOnTablesUpdate, notifyBasketsChange, openRecapBasketOnTablette, openBillOnTablette, notifyLinkTable,
+    notifyUnlinkTable
+} = require("../socket");
 const {notifyOrderReadyToDeliver} = require("../socket");
 
 router.get("/", async (req, res) => {
@@ -29,6 +31,16 @@ router.get("/", async (req, res) => {
         handleError(error, res);
     }
 });
+
+router.post('/update', async (req, res) => {
+    const howManyMorePeople = req.body.howManyMorePeople
+    const tableNumberToAdd = req.body.tableNumberToAdd;
+    const orderId = req.body.orderId;
+    const tableNumberAlreadyStarted = req.body.tableNumberAlreadyStarted;
+    await addLinkedTableToStartedOrder(howManyMorePeople, tableNumberToAdd, orderId);
+    await notifyLinkTable(tableNumberAlreadyStarted, [tableNumberToAdd]);
+    res.sendStatus(200);
+})
 
 router.post('/baskets', async (req, res) => {
     logger.info("GET /orders/preparations-status/baskets");
@@ -111,15 +123,15 @@ router.post("/open-table", async (req, res) => {
         return;
     }
     try {
-        const result = await postOpenTable(
-            req.body.tableNumber,
-            req.body.customersCount,
-            req.body.linkedTables
-        );
+        const tableNumber = req.body.tableNumber;
+        const customersCount = req.body.customersCount;
+        const linkedTables = req.body.linkedTables;
+        const result = await postOpenTable(tableNumber, customersCount, linkedTables);
 
         logger.info("Table opened.");
         res.status(200).json(result.data);
-        notifyFrontOnTablesUpdate(req.body.tableNumber);
+        notifyFrontOnTablesUpdate(tableNumber);
+        notifyLinkTable(tableNumber, linkedTables);
     } catch (error) {
         handleError(error, res);
     }
@@ -223,6 +235,7 @@ router.post("/bill/:tableOrderId", async (req, res) => {
         logger.info("Bill sent.");
         res.status(200).json(result.data);
         notifyFrontOnTablesUpdate(tableNumber);
+        notifyUnlinkTable(tableNumber);
     } catch (error) {
         handleError(error, res);
     }

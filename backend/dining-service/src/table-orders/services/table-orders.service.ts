@@ -20,6 +20,7 @@ import { KitchenProxyService } from './kitchen-proxy.service';
 import { TableOrderIdNotFoundException } from '../exceptions/table-order-id-not-found.exception';
 import { AddMenuItemDtoNotFoundException } from '../exceptions/add-menu-item-dto-not-found.exception';
 import { TableOrderAlreadyBilledException } from '../exceptions/table-order-already-billed.exception';
+import {UpdateOrderDto} from "../dto/update-order.dto";
 
 @Injectable()
 export class TableOrdersService {
@@ -32,6 +33,19 @@ export class TableOrdersService {
 
   async findAll(): Promise<TableOrder[]> {
     return this.tableOrderModel.find().lean();
+  }
+
+  async addLinkedTable(update: UpdateOrderDto): Promise<TableOrder> {
+    const foundItem = await this.findOne(update.orderId);
+
+    if (foundItem === null) {
+      throw new TableOrderIdNotFoundException(update.orderId);
+    }
+
+    foundItem.customersCount += update.howManyMorePeople;
+    foundItem.linkedTables.push(update.tableNumberToAdd);
+
+    return this.tableOrderModel.findByIdAndUpdate(update.orderId, foundItem, { returnDocument: 'after' });
   }
 
   async findOne(tableOrderId: string): Promise<TableOrder> {

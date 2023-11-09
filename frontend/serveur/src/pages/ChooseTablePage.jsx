@@ -15,6 +15,7 @@ import {createNewOrder} from "../api/tablesOrders";
 import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
 import {preparationTakenToTable} from "../api/preparations";
 import io from 'socket.io-client';
+import {linkTableModal} from "../components/chooseTable/ModalDisplay";
 
 const {Title} = Typography;
 
@@ -76,15 +77,15 @@ const ChooseTablePage = () => {
         allTables
             .filter((table) => table.state === TABLE_AVAILABLE)
             .forEach((table) => {
-            document.getElementById(`table${table.number}`)?.addEventListener("contextmenu", (event) => {
-                // Désactiver le menu du clic droit
-                event.preventDefault();
+                document.getElementById(`table${table.number}`)?.addEventListener("contextmenu", (event) => {
+                    // Désactiver le menu du clic droit
+                    event.preventDefault();
 
-                // Elle ne doit pas déjà être bloquée
-                if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
-                else handleClickOnTableItem(table, handleTableClickResponse, true);
-            });
-        })
+                    // Elle ne doit pas déjà être bloquée
+                    if (parseInt(table.state) === TABLE_BLOCKED) messageApi.info(`Table ${table.number} already locked`)
+                    else handleClickOnTableItem(table, handleTableClickResponse, true);
+                });
+            })
     }, [allTables]);
 
     const handleOnClick = (table) => {
@@ -93,11 +94,14 @@ const ChooseTablePage = () => {
 
     const handleTableClickResponse = (table, response) => {
         // Réouvrir la table déjà ouverte
-        if (response === "reopen") {
+        if (response === "reopen")
             navigate(`/takeOrder/${table.number}`);
-        }
+
+        // Redirection vers la table liée
+        else if (response === "linked") handleOnClick(allTables.find(t => t.number === table.linkedTable));
+
         // Bloquer une table
-        if (response === "lock") {
+        else if (response === "lock") {
             updateTable(table.number, {blocked: true})
                 .then(() => {
                     messageApi.success(`Table ${table.number} locked`);
@@ -105,6 +109,19 @@ const ChooseTablePage = () => {
                 })
                 .catch(() => {
                     messageApi.error(`Unable to lock table ${table.number}`);
+                })
+        }
+
+        // Link une table
+        else if (response === "link") {
+            linkTableModal(table, allTables)
+                .then((tableNumberToGO) => {
+                    messageApi.success("Link confirmed");
+                    if(tableNumberToGO) navigate(`/takeOrder/${tableNumberToGO}`);
+                })
+                .catch((err) => {
+                    if (err) messageApi.error(err);
+                    else messageApi.warning('Link canceled');
                 })
         }
 
@@ -151,7 +168,7 @@ const ChooseTablePage = () => {
     }
 
     const openingTable = async (table, numberOfPerson) => {
-        await createNewOrder(table.number, numberOfPerson);
+        await createNewOrder(table.number, numberOfPerson, []);
     }
 
     const openQuickSearch = () => {
@@ -218,7 +235,7 @@ const ChooseTablePage = () => {
             return allTables.map((table) => (
                 <Grid item xs={6} sm={3} key={table.number} id={`table${table.number}`}>
                     <TableButton onClick={() => handleOnClick(table)} tableNumber={table.number}
-                                 state={table.state}/>
+                                 state={table.state} linkedTable={table.linkedTable}/>
                 </Grid>
             ));
         }

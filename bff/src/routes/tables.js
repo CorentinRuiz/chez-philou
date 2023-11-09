@@ -27,11 +27,18 @@ router.post("/update-table/:tableId", async (req, res) => {
     logger.info("Front-end is asking to update table " + req.params.tableId + "...");
 
     try {
-        const result = await updateTable(req.params.tableId, req.body.blocked);
+        const tableNumber = req.params.tableId;
 
-        logger.info("Table " + req.params.tableId + " updated.");
+        let update = {};
+        if (req.body.blocked !== undefined) update.blocked = req.body.blocked;
+        if (req.body.linkedTable !== undefined) update.linkedTable = req.body.linkedTable;
+        if (req.body.taken !== undefined) update.taken = req.body.taken;
+
+        const result = await updateTable(tableNumber, update);
+
+        logger.info("Table " + tableNumber + " updated.");
         res.status(200).json(result.data);
-        notifyFrontOnTablesUpdate();
+        notifyFrontOnTablesUpdate(tableNumber);
     } catch (error) {
         logger.error("Error while updating table");
         res.status(500).send("An error occurred while updating table.");

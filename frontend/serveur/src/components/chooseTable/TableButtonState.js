@@ -22,13 +22,17 @@ const allStates = {
     5: {
         text: 'Table delivered',
         color: '#a9d0ea'
+    },
+    6: {
+        text: 'Table linked to ',
+        color: '#d5bbe5'
     }
 }
 
-export const getTextOfState = (state) => {
+export const getTextOfState = (state, linkedTable) => {
     if (allStates[state] === undefined)
         return 'Unknown';
-    return allStates[state].text;
+    return allStates[state].text + (linkedTable ?? '');
 }
 
 export const getColorOfState = (state) => {

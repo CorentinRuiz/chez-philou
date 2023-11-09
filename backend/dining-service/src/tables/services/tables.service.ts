@@ -61,7 +61,9 @@ export class TablesService {
       throw new TableAlreadyTakenException(tableNumber);
     }
 
-    foundItem.blocked = updateTableDto.blocked;
+    if (updateTableDto.blocked !== undefined) foundItem.blocked = updateTableDto.blocked;
+    if (updateTableDto.linkedTable !== undefined) foundItem.linkedTable = updateTableDto.linkedTable;
+    if (updateTableDto.taken !== undefined) foundItem.taken = updateTableDto.taken;
 
     return this.tableModel.findByIdAndUpdate(foundItem._id, foundItem, { returnDocument: 'after' });
   }
@@ -103,6 +105,8 @@ export class TablesService {
 
   async releaseTables(mainTableId: number, linkedTables: number[]): Promise<Table> {
     const tablesToRelease: Table[] = [];
+
+    console.log(linkedTables);
 
     tablesToRelease.push(await this.findByNumber(mainTableId));
     for (const number of linkedTables) {

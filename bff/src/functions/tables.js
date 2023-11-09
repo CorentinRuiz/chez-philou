@@ -5,7 +5,8 @@ const {
     ANOTHER_SERVICE_READY,
     READY_TO_SERVE,
     PREPARATION_IN_PROGRESS,
-    TABLE_AVAILABLE
+    TABLE_AVAILABLE,
+    TABLE_LINKED
 } = require("../constants/constants");
 const {getTableOrderById} = require("../api/orders");
 const {getPreparationStatusFromId} = require("../api/preparations");
@@ -20,6 +21,7 @@ const retrieveAllTables = () => {
                     id: table._id,
                     number: table.number,
                     tableOrderId: table.tableOrderId,
+                    linkedTable: table.linkedTable,
                     state,
                     tableOrderInfos
                 };
@@ -37,6 +39,10 @@ const getTableStateByTableNumber = async (tableNumber) => {
 }
 
 const getTableState = async (table) => {
+    if(table.linkedTable !== null) {
+        const linkedTableState = await getTableStateByTableNumber(table.linkedTable);
+        return {state: TABLE_LINKED, tableOrderInfos: null, linkedTableNumber: table.linkedTable, linkedTableState};
+    }
     if (table.blocked) return {state: TABLE_BLOCKED, tableOrderInfos: null};
     else if (table.taken && table.tableOrderId !== null) {
         const tableOrders = (await getTableOrderById(table.tableOrderId)).data;

@@ -26,8 +26,17 @@ export const preparationStatus = async (tableOrderId) => {
   );
 };
 
-export const createNewOrder = async (tableNumber, customersCount) => {
-  const body = { tableNumber: tableNumber, customersCount: customersCount, linkedTables: 1 };
+export const addLinkedTableToStartedOrder = async (tableNumberToLink, tableOrderId, numberOfPeople, tableNumberAlreadyStarted) => {
+  await axiosInstance.post(`${API_BASE_ROUTE}/update`, {
+    howManyMorePeople: numberOfPeople,
+    orderId: tableOrderId,
+    tableNumberToAdd: tableNumberToLink,
+    tableNumberAlreadyStarted
+  });
+}
+
+export const createNewOrder = async (tableNumber, customersCount, linkedTables) => {
+  const body = { tableNumber: tableNumber, customersCount: customersCount, linkedTables: linkedTables };
   return await axiosInstance.post(`${API_BASE_ROUTE}/open-table`, body);
 };
 

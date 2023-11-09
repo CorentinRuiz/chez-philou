@@ -3,15 +3,22 @@ import {
     PREPARATION_IN_PROGRESS,
     READY_TO_SERVE,
     TABLE_AVAILABLE,
-    TABLE_BLOCKED,
+    TABLE_BLOCKED, TABLE_LINKED,
     TABLE_OPEN
 } from "./Constants";
 import PropTypes from "prop-types";
-import {displayUnknownModal, lockTableModal, openNewTable, unlockTableModal, preparationInProgressModal, orderReadyModal} from "./ModalDisplay";
+import {
+    displayUnknownModal,
+    lockTableModal,
+    openNewTable,
+    unlockTableModal,
+    preparationInProgressModal,
+    orderReadyModal
+} from "./ModalDisplay";
 
 export const handleClickOnTableItem = (table, onModalResponse, lock = false) => {
     if (table) {
-        if(lock) {
+        if (lock) {
             lockTableModal(table, onModalResponse);
             return;
         }
@@ -33,6 +40,9 @@ export const handleClickOnTableItem = (table, onModalResponse, lock = false) => 
                 break;
             case ANOTHER_SERVICE_READY:
                 onModalResponse(table, "reopen");
+                break;
+            case TABLE_LINKED:
+                onModalResponse(table, "linked");
                 break;
             default:
                 displayUnknownModal();

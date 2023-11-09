@@ -23,6 +23,7 @@ import { AddMenuItemDtoNotFoundException } from '../exceptions/add-menu-item-dto
 import { TableOrderAlreadyBilledException } from '../exceptions/table-order-already-billed.exception';
 import { PreparationDto } from '../dto/preparation.dto';
 import {TableBlockedException} from "../../tables/exceptions/table-blocked.exception";
+import {UpdateOrderDto} from "../dto/update-order.dto";
 
 @ApiTags('tableOrders')
 @Controller('/tableOrders')
@@ -43,6 +44,15 @@ export class TableOrdersController {
   @Post()
   async openTable(@Body() startOrderingDto: StartOrderingDto): Promise<TableOrder> {
     return await this.tableOrdersService.startOrdering(startOrderingDto);
+  }
+
+  @ApiBody({ type: UpdateOrderDto })
+  @ApiCreatedResponse({ type: TableOrder, description: 'The table has been successfully updated.' })
+  @ApiNotFoundResponse({ type: TableNumberNotFoundException, description: 'Table not found' })
+  @Post('/update')
+  async addLinkedTable(@Body() updateOrderDto: UpdateOrderDto): Promise<TableOrder> {
+    console.log(updateOrderDto);
+    return await this.tableOrdersService.addLinkedTable(updateOrderDto);
   }
 
   @ApiParam({ name: 'tableOrderId' })

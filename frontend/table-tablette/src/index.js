@@ -4,11 +4,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from "react-router-dom";
+import {MustDefinedTableNumber} from "./MustDefinedTableNumber";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Router>
-    <App />
+      {localStorage.getItem("tableNumber") === null && <MustDefinedTableNumber/>}
+      {localStorage.getItem("tableNumber") && <App/>}
   </Router>
 );
 

@@ -2,8 +2,7 @@ import {getTextOfState, getColorOfState} from "./TableButtonState";
 import PaperButtonMUI from "../templates/PaperButtonMUI";
 import PropTypes from "prop-types";
 
-const TableButton = (props) => {
-    const {tableNumber, state, onClick} = props;
+const TableButton = ({tableNumber, state, onClick, linkedTable}) => {
 
     const borderRadius = {
         bl: "15px",
@@ -12,7 +11,7 @@ const TableButton = (props) => {
         tr: "15px"
     }
 
-    return <PaperButtonMUI borderRadius={borderRadius} onClick={onClick} color={getColorOfState(state)} title={`Table ${tableNumber}`} description={getTextOfState(state)}/>
+    return <PaperButtonMUI borderRadius={borderRadius} onClick={onClick} color={getColorOfState(state)} title={`Table ${tableNumber}`} description={getTextOfState(state, linkedTable)}/>
 }
 
 TableButton.propTypes = {

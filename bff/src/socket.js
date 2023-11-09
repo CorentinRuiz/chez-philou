@@ -30,6 +30,14 @@ async function notifyTableInfos(tableNumber) {
     io.emit("TableInfos", {...tableState, tableNumber});
 }
 
+async function notifyLinkTable(tableSource, allLinkedTable) {
+    io.emit('LinkTable', {tableSource, allLinkedTable});
+}
+
+async function notifyUnlinkTable(tableSourceToUnlink) {
+    io.emit('UnlinkTable', {tableSourceToUnlink})
+}
+
 async function callWaiter(tableNumber) {
     io.emit("CallWaiter", tableNumber);
 }
@@ -51,6 +59,10 @@ io.on('connection', async (socket) => {
    if(tableNumberConnected) await notifyTableInfos(parseInt(tableNumberConnected));
 });
 
+io.on('AskingFirstLinkedTableState', async (socket) => {
+    console.log(socket);
+})
+
 httpServer.listen(PORT, HOST, () => {
     console.log("WebSocket running on port:", PORT);
 });
@@ -61,5 +73,7 @@ module.exports = {
     callWaiter,
     notifyBasketsChange,
     openRecapBasketOnTablette,
-    openBillOnTablette
+    openBillOnTablette,
+    notifyLinkTable,
+    notifyUnlinkTable
 };
