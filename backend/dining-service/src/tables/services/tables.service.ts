@@ -12,8 +12,8 @@ import { TableNumberNotFoundException } from '../exceptions/table-number-not-fou
 import { TableAlreadyTakenException } from '../exceptions/table-already-taken.exception';
 import { TableAlreadyFreeException } from '../exceptions/table-already-free.exception';
 import { TablesWithOrderService } from '../../tables-with-order/services/tables-with-order.service';
-import {UpdateTableDto} from "../dto/update-table.dto";
-import {TableBlockedException} from "../exceptions/table-blocked.exception";
+import { UpdateTableDto } from '../dto/update-table.dto';
+import { TableBlockedException } from '../exceptions/table-blocked.exception';
 
 @Injectable()
 export class TablesService {
@@ -25,15 +25,17 @@ export class TablesService {
   async findAll(): Promise<TableWithOrderDto[]> {
     const allTables: Table[] = await this.tableModel.find().lean();
 
-    const allTablesWithOrder = allTables.map((table) => (
-      this.tablesWithOrderService.tableToTableWithOrder(table)
-    ));
+    const allTablesWithOrder = allTables.map((table) =>
+      this.tablesWithOrderService.tableToTableWithOrder(table),
+    );
 
     return Promise.all(allTablesWithOrder);
   }
 
   async findByNumber(tableNumber: number): Promise<TableWithOrderDto> {
-    const foundItem = await this.tableModel.findOne({ number: tableNumber }).lean();
+    const foundItem = await this.tableModel
+      .findOne({ number: tableNumber })
+      .lean();
 
     if (foundItem === null) {
       throw new TableNumberNotFoundException(tableNumber);
@@ -43,7 +45,9 @@ export class TablesService {
   }
 
   async create(addTableDto: AddTableDto): Promise<TableWithOrderDto> {
-    const alreadyExists = await this.tableModel.find({ number: addTableDto.number });
+    const alreadyExists = await this.tableModel.find({
+      number: addTableDto.number,
+    });
     if (alreadyExists.length > 0) {
       throw new TableAlreadyExistsException(addTableDto.number);
     }
@@ -52,8 +56,13 @@ export class TablesService {
     return this.tablesWithOrderService.tableToTableWithOrder(newTable);
   }
 
-  async updateTable(tableNumber: number, updateTableDto: UpdateTableDto): Promise<TableWithOrderDto> {
-    const foundItem = await this.tableModel.findOne({ number: tableNumber }).lean();
+  async updateTable(
+    tableNumber: number,
+    updateTableDto: UpdateTableDto,
+  ): Promise<TableWithOrderDto> {
+    const foundItem = await this.tableModel
+      .findOne({ number: tableNumber })
+      .lean();
 
     if (foundItem === null) {
       throw new TableNumberNotFoundException(tableNumber);
@@ -61,15 +70,20 @@ export class TablesService {
       throw new TableAlreadyTakenException(tableNumber);
     }
 
-    if (updateTableDto.blocked !== undefined) foundItem.blocked = updateTableDto.blocked;
-    if (updateTableDto.linkedTable !== undefined) foundItem.linkedTable = updateTableDto.linkedTable;
-    if (updateTableDto.taken !== undefined) foundItem.taken = updateTableDto.taken;
+    if (updateTableDto.blocked !== undefined)
+      foundItem.blocked = updateTableDto.blocked;
+    if (updateTableDto.linkedTable !== undefined)
+      foundItem.linkedTable = updateTableDto.linkedTable;
+    if (updateTableDto.taken !== undefined)
+      foundItem.taken = updateTableDto.taken;
 
-    return this.tableModel.findByIdAndUpdate(foundItem._id, foundItem, { returnDocument: 'after' });
+    return this.tableModel.findByIdAndUpdate(foundItem._id, foundItem, {
+      returnDocument: 'after',
+    });
   }
 
   async checkAllTablesAreFree(tables: Table[]): Promise<void> {
-    for(const table of tables) {
+    for (const table of tables) {
       if (table.taken) {
         throw new TableAlreadyTakenException(table.number);
       } else if (table.blocked) {
@@ -78,7 +92,10 @@ export class TablesService {
     }
   }
 
-  async takeTables(mainTableId: number, linkedTables: number[]): Promise<Table> {
+  async takeTables(
+    mainTableId: number,
+    linkedTables: number[],
+  ): Promise<Table> {
     const tablesToTake: Table[] = [];
 
     tablesToTake.push(await this.findByNumber(mainTableId));
@@ -94,19 +111,23 @@ export class TablesService {
     for (const table of tablesToTake) {
       table.taken = true;
       table.linkedTable = mainTableId;
-      console.log(table);
-      await this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+      await this.tableModel.findByIdAndUpdate(table._id, table, {
+        returnDocument: 'after',
+      });
     }
 
     mainTable.taken = true;
 
-    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, { returnDocument: 'after' });
+    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, {
+      returnDocument: 'after',
+    });
   }
 
-  async releaseTables(mainTableId: number, linkedTables: number[]): Promise<Table> {
+  async releaseTables(
+    mainTableId: number,
+    linkedTables: number[],
+  ): Promise<Table> {
     const tablesToRelease: Table[] = [];
-
-    console.log(linkedTables);
 
     tablesToRelease.push(await this.findByNumber(mainTableId));
     for (const number of linkedTables) {
@@ -121,13 +142,16 @@ export class TablesService {
     for (const table of tablesToRelease) {
       table.taken = false;
       table.linkedTable = null;
-      console.log(table);
-      await this.tableModel.findByIdAndUpdate(table._id, table, { returnDocument: 'after' });
+      await this.tableModel.findByIdAndUpdate(table._id, table, {
+        returnDocument: 'after',
+      });
     }
 
     mainTable.taken = false;
 
-    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, { returnDocument: 'after' });
+    return this.tableModel.findByIdAndUpdate(mainTable._id, mainTable, {
+      returnDocument: 'after',
+    });
   }
 
   async checkAllTablesAreTaken(tables: Table[]): Promise<void> {

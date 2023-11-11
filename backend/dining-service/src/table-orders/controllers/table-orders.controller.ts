@@ -4,7 +4,9 @@ import {
   ApiUnprocessableEntityResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
-  ApiTags, ApiOkResponse, ApiParam,
+  ApiTags,
+  ApiOkResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 
 import { StartOrderingDto } from '../dto/start-ordering.dto';
@@ -22,8 +24,8 @@ import { TableOrdersService } from '../services/table-orders.service';
 import { AddMenuItemDtoNotFoundException } from '../exceptions/add-menu-item-dto-not-found.exception';
 import { TableOrderAlreadyBilledException } from '../exceptions/table-order-already-billed.exception';
 import { PreparationDto } from '../dto/preparation.dto';
-import {TableBlockedException} from "../../tables/exceptions/table-blocked.exception";
-import {UpdateOrderDto} from "../dto/update-order.dto";
+import { TableBlockedException } from '../../tables/exceptions/table-blocked.exception';
+import { UpdateOrderDto } from '../dto/update-order.dto';
 
 @ApiTags('tableOrders')
 @Controller('/tableOrders')
@@ -37,59 +39,129 @@ export class TableOrdersController {
   }
 
   @ApiBody({ type: StartOrderingDto })
-  @ApiCreatedResponse({ type: TableOrder, description: 'The table has been successfully opened.' })
-  @ApiNotFoundResponse({ type: TableNumberNotFoundException, description: 'Table not found' })
-  @ApiUnprocessableEntityResponse({ type: TableAlreadyTakenException, description: 'Table is already taken' })
-  @ApiUnprocessableEntityResponse({ type: TableBlockedException, description: 'Table is blocked'})
+  @ApiCreatedResponse({
+    type: TableOrder,
+    description: 'The table has been successfully opened.',
+  })
+  @ApiNotFoundResponse({
+    type: TableNumberNotFoundException,
+    description: 'Table not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: TableAlreadyTakenException,
+    description: 'Table is already taken',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: TableBlockedException,
+    description: 'Table is blocked',
+  })
   @Post()
-  async openTable(@Body() startOrderingDto: StartOrderingDto): Promise<TableOrder> {
+  async openTable(
+    @Body() startOrderingDto: StartOrderingDto,
+  ): Promise<TableOrder> {
     return await this.tableOrdersService.startOrdering(startOrderingDto);
   }
 
   @ApiBody({ type: UpdateOrderDto })
-  @ApiCreatedResponse({ type: TableOrder, description: 'The table has been successfully updated.' })
-  @ApiNotFoundResponse({ type: TableNumberNotFoundException, description: 'Table not found' })
+  @ApiCreatedResponse({
+    type: TableOrder,
+    description: 'The table has been successfully updated.',
+  })
+  @ApiNotFoundResponse({
+    type: TableNumberNotFoundException,
+    description: 'Table not found',
+  })
   @Post('/update')
-  async addLinkedTable(@Body() updateOrderDto: UpdateOrderDto): Promise<TableOrder> {
-    console.log(updateOrderDto);
+  async addLinkedTable(
+    @Body() updateOrderDto: UpdateOrderDto,
+  ): Promise<TableOrder> {
     return await this.tableOrdersService.addLinkedTable(updateOrderDto);
   }
 
   @ApiParam({ name: 'tableOrderId' })
   @ApiOkResponse({ type: TableOrder })
-  @ApiNotFoundResponse({ type: TableOrderIdNotFoundException, description: 'Table order not found' })
+  @ApiNotFoundResponse({
+    type: TableOrderIdNotFoundException,
+    description: 'Table order not found',
+  })
   @Get(':tableOrderId')
-  async getTableOrderById(@Param() getTableOrderParams: GetTableOrderParams): Promise<TableOrder> {
+  async getTableOrderById(
+    @Param() getTableOrderParams: GetTableOrderParams,
+  ): Promise<TableOrder> {
     return this.tableOrdersService.findOne(getTableOrderParams.tableOrderId);
   }
 
   @ApiParam({ name: 'tableOrderId' })
   @ApiBody({ type: AddMenuItemDto })
-  @ApiCreatedResponse({ type: TableOrder, description: 'The menu item has been successfully added to the table order.' })
-  @ApiNotFoundResponse({ type: TableOrderIdNotFoundException, description: 'Table order not found' })
-  @ApiNotFoundResponse({ type: AddMenuItemDtoNotFoundException, description: 'Inconsistent AddMenuItemDto with the MenuServiceProxy' })
-  @ApiUnprocessableEntityResponse({ type: TableOrderAlreadyBilledException, description: 'TableOrder is already billed' })
+  @ApiCreatedResponse({
+    type: TableOrder,
+    description:
+      'The menu item has been successfully added to the table order.',
+  })
+  @ApiNotFoundResponse({
+    type: TableOrderIdNotFoundException,
+    description: 'Table order not found',
+  })
+  @ApiNotFoundResponse({
+    type: AddMenuItemDtoNotFoundException,
+    description: 'Inconsistent AddMenuItemDto with the MenuServiceProxy',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: TableOrderAlreadyBilledException,
+    description: 'TableOrder is already billed',
+  })
   @Post(':tableOrderId')
-  async addMenuItemToTableOrder(@Param() getTableOrderParams: GetTableOrderParams, @Body() addMenuItemDto: AddMenuItemDto): Promise<TableOrder> {
-    return this.tableOrdersService.addOrderingLineToTableOrder(getTableOrderParams.tableOrderId, addMenuItemDto);
+  async addMenuItemToTableOrder(
+    @Param() getTableOrderParams: GetTableOrderParams,
+    @Body() addMenuItemDto: AddMenuItemDto,
+  ): Promise<TableOrder> {
+    return this.tableOrdersService.addOrderingLineToTableOrder(
+      getTableOrderParams.tableOrderId,
+      addMenuItemDto,
+    );
   }
 
   @ApiParam({ name: 'tableOrderId' })
-  @ApiCreatedResponse({ type: PreparationDto, isArray: true, description: 'The menu items have been successfully sent for preparation.' })
-  @ApiNotFoundResponse({ type: TableOrderIdNotFoundException, description: 'Table order not found' })
-  @ApiUnprocessableEntityResponse({ type: TableOrderAlreadyBilledException, description: 'TableOrder is already billed' })
+  @ApiCreatedResponse({
+    type: PreparationDto,
+    isArray: true,
+    description: 'The menu items have been successfully sent for preparation.',
+  })
+  @ApiNotFoundResponse({
+    type: TableOrderIdNotFoundException,
+    description: 'Table order not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: TableOrderAlreadyBilledException,
+    description: 'TableOrder is already billed',
+  })
   @Post(':tableOrderId/prepare')
-  async prepareTableOrder(@Param() getTableOrderParams: GetTableOrderParams): Promise<PreparationDto[]> {
-    return this.tableOrdersService.sendItemsForPreparation(getTableOrderParams.tableOrderId);
+  async prepareTableOrder(
+    @Param() getTableOrderParams: GetTableOrderParams,
+  ): Promise<PreparationDto[]> {
+    return this.tableOrdersService.sendItemsForPreparation(
+      getTableOrderParams.tableOrderId,
+    );
   }
 
   @ApiParam({ name: 'tableOrderId' })
-  @ApiOkResponse({ type: TableOrder, description: 'The table has been successfully billed.' })
-  @ApiNotFoundResponse({ type: TableOrderIdNotFoundException, description: 'Table order not found' })
-  @ApiUnprocessableEntityResponse({ type: TableOrderAlreadyBilledException, description: 'TableOrder is already billed' })
+  @ApiOkResponse({
+    type: TableOrder,
+    description: 'The table has been successfully billed.',
+  })
+  @ApiNotFoundResponse({
+    type: TableOrderIdNotFoundException,
+    description: 'Table order not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: TableOrderAlreadyBilledException,
+    description: 'TableOrder is already billed',
+  })
   @HttpCode(200)
   @Post(':tableOrderId/bill')
-  async billTableOrder(@Param() getTableOrderParams: GetTableOrderParams): Promise<TableOrder> {
+  async billTableOrder(
+    @Param() getTableOrderParams: GetTableOrderParams,
+  ): Promise<TableOrder> {
     return this.tableOrdersService.billOrder(getTableOrderParams.tableOrderId);
   }
 }

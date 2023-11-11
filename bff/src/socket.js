@@ -59,10 +59,6 @@ io.on('connection', async (socket) => {
    if(tableNumberConnected) await notifyTableInfos(parseInt(tableNumberConnected));
 });
 
-io.on('AskingFirstLinkedTableState', async (socket) => {
-    console.log(socket);
-})
-
 httpServer.listen(PORT, HOST, () => {
     console.log("WebSocket running on port:", PORT);
 });
