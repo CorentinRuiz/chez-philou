@@ -73,11 +73,13 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
         });
 
         return <Table columns={billColumns} dataSource={itemsGrouped} pagination={false} footer={() => (
-            <Grid direction="row" container>
-                <Grid item xs={6} textAlign="left"><Typography variant="h6"><b>Total :</b></Typography></Grid>
-                <Grid item xs={6} textAlign="right"><Typography
-                    variant="h6"><b>{itemsGrouped.reduce((acc, item) => acc + item.unitaryPrice * item.quantity, 0)}€</b></Typography></Grid>
-            </Grid>
+            <Stack direction="column">
+                <Typography variant="body" textAlign="right">
+                    Nombre de produit : {itemsGrouped.reduce((acc, item) => acc + item.quantity, 0)}
+                </Typography>
+                <Typography variant="h6" textAlign="right"><b>Total
+                    : {itemsGrouped.reduce((acc, item) => acc + item.unitaryPrice * item.quantity, 0)}€</b></Typography>
+            </Stack>
         )}/>
     }
 
