@@ -7,70 +7,21 @@ import {
     TABLE_AVAILABLE,
     TABLE_BLOCKED,
 } from "../components/chooseTable/Constants";
-import {Alert, FloatButton, InputNumber, message, Modal, notification, Skeleton, Typography} from "antd";
+import {Alert, FloatButton, InputNumber, Modal, Skeleton, Typography} from "antd";
 import {SearchOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {getAllTables, updateTable} from "../api/tables";
 import {createNewOrder} from "../api/tablesOrders";
 import handleClickOnTableItem from "../components/chooseTable/ClickOnTableItem";
 import {preparationTakenToTable} from "../api/preparations";
-import io from 'socket.io-client';
 import {linkTableModal} from "../components/chooseTable/ModalDisplay";
 
 const {Title} = Typography;
 
-const ChooseTablePage = () => {
-    const [messageApi, messageContextHolder] = message.useMessage();
-    const [notificationApi, notificationContextHolder] = notification.useNotification()
-    const [allTables, setAllTables] = useState([]);
+const ChooseTablePage = ({allTables, setAllTables, messageApi, messageContextHolder}) => {
     const [firstLoadInProgress, setFirstLoadInProgress] = useState(true);
 
     const navigate = useNavigate();
-
-    // WebSocket connection
-    useEffect(() => {
-        let wsError = false;
-
-        const newSocket = io(`http://${process.env.REACT_APP_WEBSOCKET_URL}`);
-
-        newSocket.on('connect', () => {
-            console.log('Connected to websocket', newSocket.id);
-            if (wsError) {
-                messageApi.destroy();
-                messageApi.info('Auto-update back online');
-                wsError = false;
-            }
-        });
-
-        newSocket.on('TableUpdate', (res) => {
-            setAllTables(res);
-            messageApi.info('Update detected and applied');
-        })
-
-        newSocket.on('OrderReady', (res) => {
-            const {tableNumber, allTables} = res;
-            setAllTables(allTables);
-            notificationApi.info({
-                duration: 15,
-                message: 'Kitchen notification',
-                description: <p>The order table n°<b>{tableNumber}</b> is ready</p>
-            })
-            Modal.destroyAll();
-        })
-
-        newSocket.on('CallWaiter', (tableNumber) => {
-            notificationApi.warning({
-                duration: 15,
-                message: <p>The table n°<b>{tableNumber}</b> need help</p>
-            })
-        })
-
-        newSocket.on('disconnect', () => {
-            console.log('Disconnected from websocket');
-            messageApi.warning('Auto-update disabled. Error with WS', 0);
-            wsError = true;
-        });
-    }, []);
 
     // Prévoit le clic long pour bloquer
     useEffect(() => {
@@ -252,7 +203,6 @@ const ChooseTablePage = () => {
 
             {/*Pour afficher des messages et notification*/}
             {messageContextHolder}
-            {notificationContextHolder}
         </Box>
     );
 }

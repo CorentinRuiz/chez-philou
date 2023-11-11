@@ -1,11 +1,11 @@
-import {Chip, Grid, Paper, Stack, Typography} from "@mui/material";
+import {Chip, Paper, Stack, Typography} from "@mui/material";
 import {Button, Modal, Table} from "antd";
 import {useNavigate} from "react-router-dom";
 import {EuroCircleOutlined, BookOutlined, EuroOutlined} from "@ant-design/icons";
 import {getPastOrders} from "../api/orders";
 import {useEffect} from "react";
 
-export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDialog}) => {
+export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDialog, linkedTable}) => {
     const navigate = useNavigate();
 
     const messageDisplayStyle = {
@@ -75,7 +75,7 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
         return <Table columns={billColumns} dataSource={itemsGrouped} pagination={false} footer={() => (
             <Stack direction="column">
                 <Typography variant="body" textAlign="right">
-                    Nombre de produit : {itemsGrouped.reduce((acc, item) => acc + item.quantity, 0)}
+                    Nombre de produits : {itemsGrouped.reduce((acc, item) => acc + item.quantity, 0)}
                 </Typography>
                 <Typography variant="h6" textAlign="right"><b>Total
                     : {itemsGrouped.reduce((acc, item) => acc + item.unitaryPrice * item.quantity, 0)}€</b></Typography>
@@ -88,7 +88,7 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
         const tableNumber = tableInfos.tableNumber;
 
         Modal.confirm({
-            title: "Addition",
+            title: `Addition${linkedTable ? ` (liée à la table n°${linkedTable})` : ''}`,
             content: await displayBillContent(tableOrderId),
             okText: "Appeler le serveur",
             cancelText: "Fermer",
