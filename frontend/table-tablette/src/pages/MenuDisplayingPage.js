@@ -124,7 +124,7 @@ const MenuDisplayingPage = ({tableInfos}) => {
             getMenusItems();
             getOldService(tableInfos.tableOrderInfos._id);
         }
-    }, []);
+    }, [tableInfos]);
 
     useEffect(() => {
         const basketRecover = location?.state?.basket;
