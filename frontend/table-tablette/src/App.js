@@ -206,7 +206,7 @@ function App() {
                     <Route path="/menu" element={<MenuDisplayingPage tableInfos={tableInfos}/>}></Route>
                     <Route path="/blocked" element={<TableBlockedPage/>}></Route>
                     <Route path="/served" element={<ServedPage tableInfos={tableInfos} callWaiter={callWaiter}
-                                                               openTheBill={openBillDialog}/>}></Route>
+                                                               openTheBill={openBillDialog} setOpenBillDialog={setOpenBillDialog}/>}></Route>
                 </Routes>
             </Content>
         </Layout>

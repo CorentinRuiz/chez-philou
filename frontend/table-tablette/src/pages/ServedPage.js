@@ -5,7 +5,7 @@ import {EuroCircleOutlined, BookOutlined, EuroOutlined} from "@ant-design/icons"
 import {getPastOrders} from "../api/orders";
 import {useEffect} from "react";
 
-export const ServedPage = ({tableInfos, callWaiter, openTheBill}) => {
+export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDialog}) => {
     const navigate = useNavigate();
 
     const messageDisplayStyle = {
@@ -91,6 +91,9 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill}) => {
             okText: "Appeler le serveur",
             cancelText: "Fermer",
             onOk: () => callWaiter(tableNumber),
+            onCancel: () => {
+                setOpenBillDialog(false);
+            },
             icon: <EuroCircleOutlined/>,
             width: '80%'
         });
