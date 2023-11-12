@@ -1,5 +1,5 @@
-import PreparationCommandVideo from '../ressources/preparation_commande.mp4';
-import WaiterComingGif from '../ressources/waiter-coming.gif';
+import PreparationCommandVideo from '../ressources/videos/preparation_commande.mp4';
+import WaiterComingGif from '../ressources/videos/waiter-coming.gif';
 import {Stack} from "@mui/material";
 import {PaperGradientAnimation} from "../components/PaperGradientAnimation";
 import {PREPARATION_IN_PROGRESS, READY_TO_SERVE} from "../components/TableStateConstants";

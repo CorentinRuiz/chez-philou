@@ -9,9 +9,10 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
     const navigate = useNavigate();
 
     const messageDisplayStyle = {
-        width: '70%',
-        paddingInline: '30px',
-        paddingBlock: '60px',
+        position: "absolute",
+        backgroundColor: "rgba(255,255,255,0.8)",
+        width: '65%',
+        paddingBlock: '65px',
     }
 
     const textInFrontStyle = {
@@ -34,7 +35,6 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
         {title: "Quantité", dataIndex: "quantity", key: "quantity", render: (quantity) => `x${quantity}`},
         {title: "Prix", dataIndex: "price", key: "price"},
     ]
-
     const displayBillContent = async (tableOrderId) => {
         const pastOrders = (await getPastOrders(tableOrderId)).data;
 
@@ -102,9 +102,9 @@ export const ServedPage = ({tableInfos, callWaiter, openTheBill, setOpenBillDial
     }
 
     return (
-        <Stack style={textInFrontStyle} alignItems="center" justifyContent="center">
-            <Paper elevation={0} style={messageDisplayStyle} id="paper-gradient-animation-served">
-                <Stack spacing={5}>
+        <Stack style={textInFrontStyle} alignItems="center" justifyContent="center" id="gradient-animation-served">
+            <Paper elevation={10} style={messageDisplayStyle}>
+                <Stack spacing={10}>
                     <Typography variant="h2">Bon appétit !</Typography>
                     <Stack spacing={5} alignItems="center" justifyContent="center" direction="row">
                         <Button type="primary" shape="round" size="large" icon={<BookOutlined />}

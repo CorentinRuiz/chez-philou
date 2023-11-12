@@ -7,9 +7,9 @@
     animation: Gradient 5s ease infinite;
 }
 
-#paper-gradient-animation-served {
+#gradient-animation-served {
     color: black;
-    background: linear-gradient(-45deg, rgb(249, 219, 168), rgb(248, 184, 161), rgb(185, 141, 126));
+    background: linear-gradient(-45deg, rgba(249, 219, 168, .5), rgba(248, 184, 161, .5), rgba(185, 141, 126, .5));
     background-size: 400% 400%;
     -webkit-animation: Gradient 5s ease infinite;
     -moz-animation: Gradient 5s ease infinite;

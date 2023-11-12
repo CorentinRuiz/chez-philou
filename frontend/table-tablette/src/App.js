@@ -19,7 +19,7 @@ import {callWaiter} from "./api/waiter";
 import {Backdrop, Paper, Typography} from "@mui/material";
 import {ServedPage} from "./pages/ServedPage";
 import {TableBlockedPage} from "./pages/TableBlockedPage";
-import mealReadyAudio from "./audio/ready.mp3";
+import mealReadyAudio from "./ressources/audios/ready.mp3";
 
 function App() {
     const TABLE_NUMBER = parseInt(localStorage.getItem('tableNumber'));
