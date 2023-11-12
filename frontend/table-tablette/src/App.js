@@ -19,6 +19,7 @@ import {callWaiter} from "./api/waiter";
 import {Backdrop, Paper, Typography} from "@mui/material";
 import {ServedPage} from "./pages/ServedPage";
 import {TableBlockedPage} from "./pages/TableBlockedPage";
+import mealReadyAudio from "./audio/ready.mp3";
 
 function App() {
     const TABLE_NUMBER = parseInt(localStorage.getItem('tableNumber'));
@@ -46,6 +47,7 @@ function App() {
                 navigate('/menu');
                 break;
             case READY_TO_SERVE:
+                new Audio(mealReadyAudio).play().catch(console.error);
             case PREPARATION_IN_PROGRESS:
                 navigate('/preparation');
                 break;
