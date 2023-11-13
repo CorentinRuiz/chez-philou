@@ -2,38 +2,33 @@ import {Paper, Stack, Typography} from "@mui/material";
 import "../styles/paperGradientAnimation.css"
 import {PREPARATION_IN_PROGRESS, READY_TO_SERVE} from "./TableStateConstants";
 import {useEffect, useState} from "react";
+import {getMeanCookingTimeOfSeveralItems} from "../api/kitchenInterface";
+import {getPastOrders} from "../api/orders";
 
 export const PaperGradientAnimation = ({tableInfos}) => {
     const [timeRemaining, setTimeRemaining] = useState(-1);
 
     const state = tableInfos?.state ?? 0;
 
-    const setTimeRemainingInMinutesFromNow = () => {
-        const preparations = tableInfos?.tableOrderInfos.preparations;
-        if(preparations === undefined) return;
+    const setWaitingTimeOfAllBasket = async () => {
+        if (tableInfos === null) {
+            setTimeRemaining(-1);
+            return;
+        }
 
-        const maxDate = preparations
-            .filter(preparation => preparation.takenForServiceAt === null)
-            .map(preparation => new Date(preparation.shouldBeReadyAt))
-            .reduce((max, date) => Math.max(max, new Date(date)), -Infinity);
-
-        let tmp = maxDate - new Date();
-
-        tmp = Math.floor(tmp / 1000);
-        let sec = tmp % 60;
-
-        // tmp = Math.floor((tmp - sec) / 60);
-        // const min = tmp % 60;
-        setTimeRemaining(sec);
-        const interval = setInterval(() => {
-            setTimeRemaining(--sec);
-            if(sec < 0) clearInterval(interval);
-        }, 1000)
-        return sec;
-    }
+        const pastOrders = (await getPastOrders(tableInfos.tableOrderInfos._id)).data;
+        getMeanCookingTimeOfSeveralItems(pastOrders[pastOrders.length - 1].preparedItems).then((res) => {
+            let cookingTime = res.data.cookingTime;
+            setTimeRemaining(cookingTime);
+            const interval = setInterval(() => {
+                setTimeRemaining(--cookingTime);
+                if (cookingTime < 0) clearInterval(interval);
+            }, 1000)
+        });
+    };
 
     useEffect(() => {
-        setTimeRemainingInMinutesFromNow();
+        setWaitingTimeOfAllBasket();
     }, []);
 
     // setTimeRemainingInMinutesFromNow();
@@ -51,7 +46,7 @@ export const PaperGradientAnimation = ({tableInfos}) => {
 
     const getSubtitle = () => {
         if (state === PREPARATION_IN_PROGRESS) {
-            if (timeRemaining > 0) return `Temps restant : ~${timeRemaining} sec`;
+            if (timeRemaining > 0) return `Temps restant : ~${timeRemaining} seconde${timeRemaining > 1 ? 's' : ''}`;
             else return 'La commande sera prête sous peu...'
         }
         if (state === READY_TO_SERVE) return "Le serveur est en route"
